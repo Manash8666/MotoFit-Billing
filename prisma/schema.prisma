@@ -1,0 +1,118 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  SERVICE_MANAGER
+  SENIOR_MECHANIC
+}
+
+enum DocumentType {
+  JOB_CARD
+  ESTIMATE
+  SOW_BILL
+}
+
+enum DocumentStatus {
+  DRAFT
+  UNDER_INSPECTION
+  ESTIMATE_CREATED
+  WORK_APPROVED
+  IN_SERVICING
+  QUALITY_CHECK
+  READY_FOR_BILLING
+  PAID
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  UPI
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String   @unique
+  pinHash   String
+  role      Role     @default(SENIOR_MECHANIC)
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String
+  vehicles  Vehicle[]
+  createdAt DateTime  @default(now())
+
+  @@index([phone])
+}
+
+model Vehicle {
+  id         String     @id @default(uuid())
+  regNumber  String     @unique // e.g. GJ 01 VP 8363
+  makeModel  String     // e.g. Honda Activa 6G, RE Electra 350
+  runningKm  Int        @default(0)
+  customerId String
+  customer   Customer   @relation(fields: [customerId], references: [id])
+  documents  Document[]
+  createdAt  DateTime   @default(now())
+
+  @@index([regNumber])
+}
+
+model Document {
+  id             String         @id @default(uuid())
+  docNumber      String         @unique // e.g. MF2-8363, MF2-EST-0908
+  type           DocumentType
+  status         DocumentStatus @default(DRAFT)
+  date           DateTime       @default(now())
+  vehicleId      String
+  vehicle        Vehicle        @relation(fields: [vehicleId], references: [id])
+  complaints     String?        // Diagnostic and complaint log
+  aiDiagnosis    Json?          // Cached predictive AI output
+  workTypeNote   String?
+  paymentMethod  PaymentMethod?
+  subtotal       Decimal        @db.Decimal(10, 2)
+  mdrSurcharge   Decimal        @default(0.00) @db.Decimal(10, 2)
+  finalTotal     Decimal        @db.Decimal(10, 2)
+  isLocked       Boolean        @default(false)
+  pdfUrl         String?        // Supabase Storage URL
+  createdById    String
+  items          LineItem[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([docNumber])
+}
+
+model LineItem {
+  id          String   @id @default(uuid())
+  documentId  String
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sortOrder   Int      @default(0)
+  sectionName String?  // e.g. "CVT Transmission Overhaul", "Labor & Machining"
+  title       String
+  description String?
+  quantity    Decimal  @default(1.00) @db.Decimal(6, 2)
+  qtyUnit     String?  @default("Pcs") // "L", "Set", "Pcs"
+  rate        Decimal  @db.Decimal(10, 2)
+  mrpDiscount Decimal? @default(0.00) @db.Decimal(5, 2) // e.g. 10.00 (%)
+  amount      Decimal  @db.Decimal(10, 2)
+}
+
+model ApiClient {
+  id        String   @id @default(uuid())
+  name      String   // "MotoFit Website" or "MotoFit Customer App"
+  apiKey    String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
