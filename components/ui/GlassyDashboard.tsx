@@ -61,37 +61,37 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
   const [chatThreads, setChatThreads] = useState([
     {
       id: 1,
-      name: 'Ken Smith',
-      role: 'Product Lead',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80',
+      name: 'Ravi (Head Mechanic)',
+      role: 'Service Bay 1',
+      avatar: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=120&h=120&q=80',
       status: 'online',
       time: '12:42 PM',
       messages: [
-        { id: 1, sender: 'Ken Smith', text: 'Hey James, how are the new glassy dashboard mockups progressing?', time: '12:35 PM', incoming: true },
-        { id: 2, sender: 'James', text: 'Almost complete! Just finalized the curved navigation dock and frosted glass styling.', time: '12:38 PM', incoming: false },
-        { id: 3, sender: 'Ken Smith', text: 'Awesome, client loved the initial preview. Can we review in 15 mins?', time: '12:42 PM', incoming: true }
+        { id: 1, sender: 'Ravi', text: 'KA01AB1234 clutch plate is completely worn out. Need approval for replacement.', time: '12:35 PM', incoming: true },
+        { id: 2, sender: 'James', text: 'Checking with the customer now. Hold on.', time: '12:38 PM', incoming: false },
+        { id: 3, sender: 'Ravi', text: 'Okay, moving to the next bike in the meantime.', time: '12:42 PM', incoming: true }
       ]
     },
     {
       id: 2,
-      name: 'Rachel Lee',
-      role: 'Lead Motion Designer',
-      avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&h=120&q=80',
+      name: 'AutoParts Supplier',
+      role: 'Vendor',
+      avatar: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=120&h=120&q=80',
       status: 'online',
       time: '11:15 AM',
       messages: [
-        { id: 1, sender: 'Rachel Lee', text: 'Exported all 60fps micro-animation tokens for the glow buttons.', time: '11:15 AM', incoming: true }
+        { id: 1, sender: 'AutoParts Supplier', text: 'The Motul 7100 10W50 stock has arrived. Dispatched 20 bottles.', time: '11:15 AM', incoming: true }
       ]
     },
     {
       id: 3,
-      name: 'Alex Johnson',
-      role: 'Design Engineer',
+      name: 'Suresh (Customer)',
+      role: 'Enquiry',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80',
       status: 'offline',
       time: 'Yesterday',
       messages: [
-        { id: 1, sender: 'Alex Johnson', text: 'Synced the SVG clip paths with Login v7 geometry.', time: 'Yesterday', incoming: true }
+        { id: 1, sender: 'Suresh', text: 'Is my KTM Duke ready for pickup?', time: 'Yesterday', incoming: true }
       ]
     }
   ])
@@ -100,26 +100,26 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
   const [notes, setNotes] = useState([
     {
       id: 1,
-      title: 'Design System Guidelines',
-      category: 'UI/UX',
+      title: 'Customer Feedback (KA01AB)',
+      category: 'Service',
       tagColor: '#ffd600',
-      content: 'Maintain 40px backdrop-filter blur, 1px white border with 0.18 opacity, and 12px neon gold corner reflections.',
+      content: 'Customer reported front brake squeaking. Ensure mechanics use proper anti-squeal paste during brake pad replacement.',
       date: 'Today, 2:15 PM'
     },
     {
       id: 2,
-      title: 'Q3 Product Roadmap Review',
-      category: 'Product',
-      tagColor: '#06b6d4',
-      content: 'Finalize developer handoff by Thursday. Client demo planned for Friday morning at 10:00 AM PST.',
+      title: 'Inventory Alert - Oil Filter',
+      category: 'Inventory',
+      tagColor: '#f04923',
+      content: 'Stock for Royal Enfield Classic 350 oil filters is running low (only 4 left). Re-order immediately.',
       date: 'Yesterday'
     },
     {
       id: 3,
-      title: 'Micro-Interaction Polish',
-      category: 'Motion',
-      tagColor: '#f04923',
-      content: 'Verify cubic-bezier(0.16, 1, 0.3, 1) spring physics on chip dock contact points.',
+      title: 'Workshop Maintenance',
+      category: 'Admin',
+      tagColor: '#06b6d4',
+      content: 'Hydraulic lift 2 needs hydraulic fluid top-up and general inspection by weekend.',
       date: '14 May'
     }
   ])
@@ -129,26 +129,26 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
 
   // Calendar agenda schedule state
   const [agendaEvents] = useState([
-    { id: 1, time: '10:00 AM - 10:45 AM', title: 'Sprint Design Sync', location: 'Virtual Room 4', attendees: 5, color: '#f04923' },
-    { id: 2, time: '01:30 PM - 02:30 PM', title: 'Product Architecture Review', location: '4th Floor, Room 159', attendees: 3, color: '#ffd600' },
-    { id: 3, time: '04:00 PM - 04:30 PM', title: 'Client Feedback Delivery', location: 'Executive Suite B', attendees: 8, color: '#06b6d4' }
+    { id: 1, time: '10:00 AM - 10:45 AM', title: 'Vehicle Pickup - Honda Activa', location: 'Service Bay 2', attendees: 2, color: '#f04923' },
+    { id: 2, time: '01:30 PM - 02:30 PM', title: 'Engine Rebuild (KTM 390)', location: 'Heavy Repair Bay', attendees: 3, color: '#ffd600' },
+    { id: 3, time: '04:00 PM - 04:30 PM', title: 'Vendor Stock Delivery', location: 'Store Room', attendees: 1, color: '#06b6d4' }
   ])
 
   // Workflows state
   const [workflows, setWorkflows] = useState([
-    { id: 1, name: 'GitHub Automated Release', trigger: 'Push to main branch', status: 'Active', color: '#10b981' },
-    { id: 2, name: 'Figma Design Tokens Sync', trigger: 'Styles updated in library', status: 'Active', color: '#f04923' },
-    { id: 3, name: 'Slack Telemetry Webhook', trigger: 'Critical auth security alerts', status: 'Paused', color: '#ffd600' }
+    { id: 1, name: 'Service Reminder SMS', trigger: '6 months since last service', status: 'Active', color: '#10b981' },
+    { id: 2, name: 'Invoice PDF Dispatch', trigger: 'Bill marked as Paid', status: 'Active', color: '#f04923' },
+    { id: 3, name: 'Low Stock Alert', trigger: 'Inventory falls below 5 units', status: 'Paused', color: '#ffd600' }
   ])
 
   // Integrations state
   const [integrations, setIntegrations] = useState([
-    { id: 1, name: 'Figma', desc: 'Sync UI frames and design tokens directly', connected: true, icon: '🎨' },
-    { id: 2, name: 'GitHub', desc: 'Auto-deploy commits and run CI checks', connected: true, icon: '🐙' },
-    { id: 3, name: 'Slack', desc: 'Broadcast project updates and notifications', connected: true, icon: '💬' },
-    { id: 4, name: 'Notion', desc: 'Knowledge base and team documentation', connected: false, icon: '📝' },
-    { id: 5, name: 'Linear', desc: 'Issue tracking and agile sprint management', connected: false, icon: '⚡' },
-    { id: 6, name: 'Google Cloud', desc: 'Compute infrastructure and KMS security', connected: true, icon: '☁️' }
+    { id: 1, name: 'AgentRouter AI', desc: 'Predictive sales and servicing estimates', connected: true, icon: '🧠' },
+    { id: 2, name: 'WhatsApp', desc: 'Send invoices and service updates to clients', connected: true, icon: '💬' },
+    { id: 3, name: 'Razorpay', desc: 'Process customer payments online', connected: true, icon: '💳' },
+    { id: 4, name: 'Tally', desc: 'Accounting and GST filing integration', connected: false, icon: '📊' },
+    { id: 5, name: 'Inventory API', desc: 'Sync spare parts with local distributors', connected: false, icon: '📦' },
+    { id: 6, name: 'AWS S3', desc: 'Cloud storage for PDF invoices and job cards', connected: true, icon: '☁️' }
   ])
 
   // Chat message sender
@@ -193,12 +193,12 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
   const [selectedDay, setSelectedDay] = useState(18)
 
   // Assignments Filter Category
-  const [selectedFilter, setSelectedFilter] = useState('Motion design')
+  const [selectedFilter, setSelectedFilter] = useState('Engine Repair')
 
   // Modal State for Adding New Assignment / Note
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newTitle, setNewTitle] = useState('')
-  const [newCategory, setNewCategory] = useState('Motion design')
+  const [newCategory, setNewCategory] = useState('Engine Repair')
   const [newPriority, setNewPriority] = useState('High')
 
   // Board Meeting Status
@@ -209,17 +209,17 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      title: 'Upcoming event',
+      title: 'Upcoming Service',
       hasPulse: true,
-      desc: 'Landing design meeting | Time: 120 min',
-      badges: ['Sat, 10 May', '11 AM - 11:45 AM']
+      desc: 'Engine Rebuild (KTM 390) | Time: 120 min',
+      badges: ['Sat, 10 May', '11 AM - 1:00 PM']
     },
     {
       id: 2,
-      title: 'Message | Product design',
+      title: 'Message | Parts Vendor',
       hasPulse: false,
-      desc: 'Message from Ken Smith',
-      snippet: 'Hey team, just wanted to check in and see how the mockup looks...'
+      desc: 'Message from AutoParts Supplier',
+      snippet: 'Hey James, the Motul stock has arrived...'
     }
   ])
 
@@ -227,33 +227,33 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
   const [tasks, setTasks] = useState([
     {
       id: 1,
-      title: 'Conduct research',
+      title: 'Vehicle Diagnostic',
       date: '4 May, 09:20 AM',
       duration: '02 h 45 m',
       progress: 90,
       color: 'emerald',
-      comments: 4,
-      attachments: 16
+      comments: 2,
+      attachments: 4
     },
     {
       id: 2,
-      title: 'Schedule a meeting',
-      date: '14 May, 12:45 AM',
-      duration: '06 h 55 m',
+      title: 'Generate Estimate (KA01)',
+      date: '14 May, 12:45 PM',
+      duration: '00 h 15 m',
       progress: 50,
       color: 'cyan',
-      comments: 4,
-      dueDate: '3 June'
+      comments: 1,
+      dueDate: 'Today'
     },
     {
       id: 3,
-      title: 'Send out reminders',
+      title: 'Send out Service Reminders',
       date: '21 May, 10:30 AM',
       duration: '01 h 30 m',
       progress: 10,
       color: 'gold',
-      comments: 16,
-      dueDate: '3 June'
+      comments: 0,
+      dueDate: 'Tomorrow'
     }
   ])
 
@@ -261,12 +261,12 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
   const [assignments, setAssignments] = useState([
     {
       id: 1,
-      title: 'Design a packaging concept for a new product',
-      category: 'Motion design',
-      tag: 'Package design',
+      title: 'Full Engine Rebuild (KTM 390 - KA01AB1234)',
+      category: 'Engine Repair',
+      tag: 'Heavy Repair',
       priority: 'High',
-      assignee: 'Rachel Lee',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80'
+      assignee: 'Ravi',
+      avatar: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=120&h=120&q=80'
     }
   ])
 
@@ -1404,18 +1404,18 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
               {/* Widget: Go Premium! Banner */}
               <div className="gd-premium-card">
                 <div className="gd-premium-gift-wrap">
-                  <Gift size={38} color="#ffd600" />
+                  <Zap size={38} color="#ffd600" />
                 </div>
-                <h3 className="gd-premium-title">Go premium!</h3>
+                <h3 className="gd-premium-title">AgentRouter AI</h3>
                 <p className="gd-premium-desc">
-                  Gain access to a range of benefits designed to enhance your workflow.
+                  Predictive sales analytics and intelligent workshop estimations.
                 </p>
                 <button
                   type="button"
                   className="gd-premium-btn"
-                  onClick={() => alert('Upgraded to Ultra Glassy Pro Plan!')}
+                  onClick={() => alert('AgentRouter Sales AI is active!')}
                 >
-                  Find out more
+                  Run Predictions
                 </button>
               </div>
             </div>
@@ -1466,8 +1466,8 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
                         <LayoutGrid size={14} />
                       </div>
                       <div>
-                        <div className="gd-timeline-event-title">Team meeting</div>
-                        <div className="gd-timeline-event-sub">12:00 - 12:30 • UX/UI design</div>
+                        <div className="gd-timeline-event-title">Inventory Audit</div>
+                        <div className="gd-timeline-event-sub">12:00 - 12:30 • Checking spare parts</div>
                       </div>
                     </div>
                     <button type="button" className="gd-micro-btn">
@@ -1486,8 +1486,8 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
                         <Briefcase size={14} />
                       </div>
                       <div>
-                        <div className="gd-timeline-event-title">Meeting with new client</div>
-                        <div className="gd-timeline-event-sub">12:30 - 01:30 PM • Job interview</div>
+                        <div className="gd-timeline-event-title">Customer Walk-in</div>
+                        <div className="gd-timeline-event-sub">12:30 - 01:30 PM • Custom paint consultation</div>
                       </div>
                     </div>
                     <button type="button" className="gd-micro-btn">
@@ -1513,9 +1513,9 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
                       </svg>
                       <div className="gd-ring-center-text">90%</div>
                     </div>
-                    <span className="gd-ring-label">DATA RESEARCH</span>
-                    <span className="gd-ring-category">Marketing</span>
-                    <p className="gd-ring-caption">5/5 assignments done!</p>
+                    <span className="gd-ring-label">SPARE PARTS</span>
+                    <span className="gd-ring-category">Inventory</span>
+                    <p className="gd-ring-caption">All parts in stock!</p>
                   </div>
 
                   {/* Ring 2: UX/UI Design (65%) */}
@@ -1534,10 +1534,10 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
                       </svg>
                       <div className="gd-ring-center-text">{metricChecked ? '100%' : '65%'}</div>
                     </div>
-                    <span className="gd-ring-label">UX/UI DESIGN</span>
-                    <span className="gd-ring-category">Typography</span>
+                    <span className="gd-ring-label">WORKSHOP CAPACITY</span>
+                    <span className="gd-ring-category">Mechanic Load</span>
                     <p className="gd-ring-caption">
-                      {metricChecked ? 'Verified!' : '2 left'}
+                      {metricChecked ? 'Fully booked!' : '2 bays open'}
                     </p>
                     <button
                       type="button"
@@ -1555,7 +1555,7 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
                 <div className="gd-card-header">
                   <h3 className="gd-card-title">
                     <Briefcase size={15} color="#f04923" />
-                    <span>Board meeting</span>
+                    <span>Vehicle Delivery</span>
                   </h3>
                   <button type="button" className="gd-micro-btn" title="Edit">
                     <Edit2 size={12} />
@@ -1568,7 +1568,7 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
                 </div>
 
                 <p className="gd-meeting-desc">
-                  Meeting with John Smith, 4th floor, room 159. Roadmap delivery.
+                  Honda City delivery for John Smith. Bay 4. Wash pending.
                 </p>
 
                 <div className="gd-meeting-actions">
@@ -1617,7 +1617,7 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="gd-modal-header">
-                <h3 className="gd-modal-title">Create New Assignment</h3>
+                <h3 className="gd-modal-title">Create New Job Card</h3>
                 <button type="button" className="gd-micro-btn" onClick={() => setIsModalOpen(false)}>
                   <X size={18} />
                 </button>
@@ -1625,11 +1625,11 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
 
               <form className="gd-modal-form" onSubmit={handleAddAssignment}>
                 <div className="gd-form-group">
-                  <label className="gd-form-label">Assignment Title</label>
+                  <label className="gd-form-label">Vehicle Number & Issue</label>
                   <input
                     type="text"
                     className="gd-form-input"
-                    placeholder="e.g. Design packaging concept..."
+                    placeholder="e.g. Activa - Oil change..."
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     required
@@ -1643,10 +1643,10 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                   >
-                    <option value="Motion design">Motion design</option>
-                    <option value="Logo">Logo</option>
-                    <option value="UX/UI Design">UX/UI Design</option>
-                    <option value="Marketing">Marketing</option>
+                    <option value="Engine Repair">Engine Repair</option>
+                    <option value="General Service">General Service</option>
+                    <option value="Body Shop">Body Shop</option>
+                    <option value="Electrical">Electrical</option>
                   </select>
                 </div>
 
@@ -1668,7 +1668,7 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: {
                     Cancel
                   </button>
                   <button type="submit" className="gd-accent-solid-btn">
-                    Create Assignment
+                    Create Job Card
                   </button>
                 </div>
               </form>
