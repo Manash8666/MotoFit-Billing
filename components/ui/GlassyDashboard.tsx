@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import VehicleIntakeCRM from './VehicleIntakeCRM'
 import {
   LayoutGrid,
   User,
@@ -465,7 +466,7 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }) {
           <header className="gd-top-bar">
             {/* Left Tabs */}
             <div className="gd-top-tabs">
-              {['Dashboard', 'Workflows', 'Integrations'].map((tab) => (
+              {['Dashboard', 'Intake CRM', 'Workflows', 'Integrations'].map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -568,7 +569,11 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }) {
             </div>
           </header>
 
-          {activeTab === 'Workflows' ? (
+          {activeTab === 'Intake CRM' ? (
+            <div className="gd-view-wrapper" style={{ height: "100%", overflow: "hidden" }}>
+               <VehicleIntakeCRM />
+            </div>
+          ) : activeTab === 'Workflows' ? (
             /* ==================== WORKFLOWS VIEW ==================== */
             <div className="gd-view-wrapper">
               <div className="gd-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
