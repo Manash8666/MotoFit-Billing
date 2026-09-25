@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Uses Groq's high-speed free-tier API (Llama 3.3 70B)
+// Uses AgentRouter API
 export async function POST(req: NextRequest) {
   try {
     const { makeModel, runningKm, complaints } = await req.json();
@@ -9,9 +9,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing makeModel or complaints" }, { status: 400 });
     }
 
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = process.env.AGENTROUTER_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "GROQ_API_KEY is not configured" }, { status: 500 });
+      return NextResponse.json({ error: "AGENTROUTER_API_KEY is not configured" }, { status: 500 });
     }
 
     const systemPrompt = `You are the chief master technician at MotoFit 2 (Nigam Nagar, Ahmedabad). Analyze vehicle intake symptoms and provide structured diagnostic assessments for two-wheelers in India. Return ONLY valid JSON matching this schema:
@@ -35,14 +35,14 @@ export async function POST(req: NextRequest) {
 Running Kilometers: ${runningKm || "Unknown"}
 Complaints Logged by Mechanic/Customer: "${complaints}"`;
 
-    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const aiResponse = await fetch("https://agentrouter.org/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.3-70b-versatile", // Will fallback or pass through AgentRouter
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -52,12 +52,12 @@ Complaints Logged by Mechanic/Customer: "${complaints}"`;
       }),
     });
 
-    if (!groqResponse.ok) {
-      const errText = await groqResponse.text();
+    if (!aiResponse.ok) {
+      const errText = await aiResponse.text();
       return NextResponse.json({ error: `AI provider error: ${errText}` }, { status: 502 });
     }
 
-    const data = await groqResponse.json();
+    const data = await aiResponse.json();
     const result = JSON.parse(data.choices[0].message.content);
 
     return NextResponse.json({ success: true, diagnosis: result });
