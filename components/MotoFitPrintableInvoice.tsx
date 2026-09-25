@@ -35,7 +35,7 @@ export const MotoFitPrintableInvoice: React.FC<PrintableDocProps> = ({ data }) =
 
   const renderRows = () => {
     let lastSection = "";
-    const rows = [];
+    const rows: React.ReactNode[] = [];
     data.items.forEach((item, idx) => {
       if (item.sectionName && item.sectionName !== lastSection) {
         rows.push(

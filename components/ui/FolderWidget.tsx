@@ -3,12 +3,12 @@ import { useState } from 'react';
 import './FolderWidget.css';
 
 export default function FolderWidget() {
-  const [activeCard, setActiveCard] = useState(null);
+  const [activeCard, setActiveCard] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [score, setScore] = useState(1248);
 
   // Allow clicking to pop out a card or cycle them
-  const handleCardClick = (cardId, e) => {
+  const handleCardClick = (cardId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setActiveCard(activeCard === cardId ? null : cardId);
   };

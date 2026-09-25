@@ -7,7 +7,7 @@ function DarkNavBar() {
   const [activeTab, setActiveTab] = useState('home');
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 80, opacity: 0 });
   const [isSearching, setIsSearching] = useState(false);
-  const navRef = useRef(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
     { id: 'home', icon: Home, label: 'Home' },
@@ -19,7 +19,7 @@ function DarkNavBar() {
 
   useEffect(() => {
     if (navRef.current) {
-      const activeElement = navRef.current.querySelector(`[data-id="${activeTab}"]`);
+      const activeElement = navRef.current.querySelector<HTMLElement>(`[data-id="${activeTab}"]`);
       if (activeElement) {
         setIndicatorStyle({
           left: activeElement.offsetLeft,

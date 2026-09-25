@@ -5,13 +5,14 @@ import { validateApiKey } from "@/lib/api-auth";
 // GET /api/v1/vehicles/[regNumber] - Fetches complete service ledger for app/website
 export async function GET(
   req: NextRequest,
-  { params }: { params: { regNumber: string } }
+  { params }: { params: Promise<{ regNumber: string }> }
 ) {
   if (!(await validateApiKey(req))) {
     return NextResponse.json({ error: "Unauthorized: Invalid or missing x-api-key" }, { status: 401 });
   }
 
-  const reg = decodeURIComponent(params.regNumber).toUpperCase().trim();
+  const { regNumber } = await params;
+  const reg = decodeURIComponent(regNumber).toUpperCase().trim();
 
   const vehicle = await prisma.vehicle.findUnique({
     where: { regNumber: reg },

@@ -41,7 +41,7 @@ import {
 } from 'lucide-react'
 import './GlassyDashboard.css'
 
-export default function GlassyDashboard({ onBackToLogin, userName = 'James' }) {
+export default function GlassyDashboard({ onBackToLogin, userName = 'James' }: { onBackToLogin?: () => void; userName?: string }) {
   // Theme State: 'dark' (Login v7 Cyber Luxury) or 'light' (Crystal Frost)
   const [theme, setTheme] = useState('dark')
 
@@ -152,7 +152,7 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }) {
   ])
 
   // Chat message sender
-  const handleSendMessage = (e) => {
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
     if (!chatInput.trim()) return
     const newMsg = {
@@ -173,7 +173,7 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }) {
   }
 
   // Note saver
-  const handleSaveNote = (e) => {
+  const handleSaveNote = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newNoteTitle.trim() || !newNoteContent.trim()) return
     const newNote = {
@@ -279,12 +279,12 @@ export default function GlassyDashboard({ onBackToLogin, userName = 'James' }) {
   }
 
   // Remove individual notification
-  const handleRemoveNotification = (id) => {
+  const handleRemoveNotification = (id: number) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 
   // Add new assignment submit
-  const handleAddAssignment = (e) => {
+  const handleAddAssignment = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTitle.trim()) return
 
