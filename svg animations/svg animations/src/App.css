@@ -1,0 +1,10 @@
+/* Fullscreen centered container */
+.app-container {
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}

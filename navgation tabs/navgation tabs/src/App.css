@@ -1,0 +1,156 @@
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #fce4e4;
+  /* Light pinkish background to show off the red pill */
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.nav-bar {
+  display: flex;
+  align-items: center;
+  background-color: #d1001a;
+  border-radius: 60px;
+  padding: 8px 24px;
+  gap: 8px;
+  box-shadow: 0 10px 25px rgba(209, 0, 26, 0.3);
+  position: relative;
+  /* important for absolute active-background */
+}
+
+/* Sliding glassy background */
+.active-background {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.2);
+  /* Glassy effect */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Smooth sliding animation */
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 5px;
+  /* space for the dot */
+}
+
+.active-dot {
+  width: 5px;
+  height: 5px;
+  background-color: white;
+  border-radius: 50%;
+  margin-bottom: 5px;
+  /* Position dot inside the sliding background */
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: color 0.3s ease;
+  min-width: 64px;
+  position: relative;
+  text-decoration: none;
+  z-index: 1;
+  /* keep above the sliding background */
+}
+
+.nav-item:hover {
+  /* Let's remove the standard hover background so it doesn't clash with the glass */
+  /* Or make it very subtle */
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item.active {
+  /* We removed the static background color here */
+  /* padding-bottom: 14px; removed because the background div handles height now */
+  /* Actually wait, we need the button itself to stay the same size so the background matches it */
+  padding-bottom: 14px;
+  /* We keep this so the button itself is taller when active */
+}
+
+.icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.icon-container svg {
+  width: 22px;
+  height: 22px;
+  transition: stroke-width 0.3s ease;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+.notification-dot {
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 50%;
+  border: 2px solid #d1001a;
+}
+
+.search-close-btn:hover {
+  background: rgba(0, 0, 0, 0.35);
+  transform: scale(1.08) rotate(90deg);
+}
+
+/* Quick Trending Chips underneath */
+.search-trending-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.trending-label {
+  font-size: 11.5px;
+  color: #a82030;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip-btn {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(209, 0, 26, 0.15);
+  color: #b20015;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip-btn:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(209, 0, 26, 0.15);
+}
