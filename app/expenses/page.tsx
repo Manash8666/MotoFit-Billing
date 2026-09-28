@@ -67,9 +67,12 @@ export default function ExpensesPage() {
         setExpenses(mapped);
         setNewExpense({ vendor: '', category: '', amount: '' });
         setIsModalOpen(false);
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to save expense");
       }
     } catch (err) {
-      alert("Failed to save expense");
+      alert("Failed to save expense (Network error)");
     }
   };
 

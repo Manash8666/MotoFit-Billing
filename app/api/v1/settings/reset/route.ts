@@ -18,6 +18,7 @@ export async function POST(req: Request) {
     await prisma.customer.deleteMany({});
     // We intentionally do not delete ApiClient to keep API access active if configured
     await prisma.user.deleteMany({});
+    await prisma.part.deleteMany({});
 
     return NextResponse.json({ success: true, message: "Database wiped successfully" });
   } catch (error: any) {

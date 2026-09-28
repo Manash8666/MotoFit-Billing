@@ -56,10 +56,13 @@ export default function TransactionsPage() {
         setTransactions(latest);
         setNewTransaction({ type: 'Income', reference: '', account: '', amount: '' });
         setIsModalOpen(false);
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to save transaction!");
       }
     } catch (err) {
       console.error("Failed to create transaction", err);
-      alert("Failed to save transaction!");
+      alert("Failed to save transaction! (Network error)");
     }
   };
 

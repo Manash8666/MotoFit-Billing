@@ -52,10 +52,13 @@ export default function ClientsPage() {
         setClients(latest);
         setNewClient({ name: '', phone: '', vehicle: '' });
         setIsModalOpen(false);
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to save client!");
       }
     } catch (err) {
       console.error("Failed to create client", err);
-      alert("Failed to save client!");
+      alert("Failed to save client! (Network error)");
     }
   };
 

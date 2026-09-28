@@ -47,9 +47,12 @@ export default function UsersPage() {
         const data = await fetch('/api/v1/users').then(r => r.json());
         if (data.users) setUsers(data.users);
         setFormData({ name: "", phone: "", pinHash: "", role: "SENIOR_MECHANIC" });
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to save user");
       }
     } catch (err) {
-      alert("Failed to save user");
+      alert("Failed to save user (Network error)");
     } finally {
       setIsSubmitting(false);
     }

@@ -66,9 +66,12 @@ export default function DebitsPage() {
         setDebits(mapped);
         setNewDebit({ vendor: '', amount: '' });
         setIsModalOpen(false);
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to save debit");
       }
     } catch (err) {
-      alert("Failed to save debit");
+      alert("Failed to save debit (Network error)");
     }
   };
 

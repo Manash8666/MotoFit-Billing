@@ -12,17 +12,11 @@ export default function PartsPage() {
   const [newItem, setNewItem] = useState({ name: '', category: '', price: '' });
 
   useEffect(() => {
-    fetch('/bikesDatabase.csv')
-      .then(res => res.text())
-      .then(csvText => {
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            setParts(results.data);
-            setLoading(false);
-          }
-        });
+    fetch('/api/v1/parts')
+      .then(res => res.json())
+      .then(data => {
+        setParts(data);
+        setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
@@ -33,11 +27,31 @@ export default function PartsPage() {
     return nameMatch || catMatch;
   });
 
-  const handleAddItem = (e: React.FormEvent) => {
+  const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    setParts([{ ...newItem }, ...parts]);
-    setNewItem({ name: '', category: '', price: '' });
-    setIsModalOpen(false);
+    try {
+      const res = await fetch('/api/v1/parts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newItem.name,
+          category: newItem.category,
+          price: newItem.price,
+          stock: 10
+        })
+      });
+      if (res.ok) {
+        const latest = await fetch('/api/v1/parts').then(r => r.json());
+        setParts(latest);
+        setNewItem({ name: '', category: '', price: '' });
+        setIsModalOpen(false);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to save part");
+      }
+    } catch (err) {
+      alert("Failed to save part (Network error)");
+    }
   };
 
   return (

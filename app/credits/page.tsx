@@ -66,9 +66,12 @@ export default function CreditsPage() {
         setCredits(mapped);
         setNewCredit({ client: '', amount: '' });
         setIsModalOpen(false);
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to save credit");
       }
     } catch (err) {
-      alert("Failed to save credit");
+      alert("Failed to save credit (Network error)");
     }
   };
 
