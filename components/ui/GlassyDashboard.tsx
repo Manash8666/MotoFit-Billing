@@ -10,7 +10,13 @@ import {
   Sun,
   Moon,
   Zap,
-  Settings
+  Settings,
+  PieChart,
+  PlusCircle,
+  MinusCircle,
+  Receipt,
+  ArrowRightLeft,
+  Sliders
 } from 'lucide-react'
 
 export default function GlassyDashboard({ userName = 'Admin' }: { userName?: string }) {
@@ -24,7 +30,7 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
     {
       title: 'SoW Bill Creation',
       desc: 'Create and manage Final Bills & Invoices',
-      icon: <FileText size={40} className="text-[#f04923]" />,
+      icon: <FileText size={32} className="text-[#f04923]" />,
       link: '/bill',
       color: '#f04923',
       bgClass: 'hover:bg-[#f04923]/10 hover:border-[#f04923]/50'
@@ -32,7 +38,7 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
     {
       title: 'SoW Estimate Creation',
       desc: 'Draft repair estimates for customer approval',
-      icon: <ClipboardList size={40} className="text-[#ffd600]" />,
+      icon: <ClipboardList size={32} className="text-[#ffd600]" />,
       link: '/estimate',
       color: '#ffd600',
       bgClass: 'hover:bg-[#ffd600]/10 hover:border-[#ffd600]/50'
@@ -40,7 +46,7 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
     {
       title: 'Clients Directory',
       desc: 'Manage customer records and history',
-      icon: <Users size={40} className="text-[#10b981]" />,
+      icon: <Users size={32} className="text-[#10b981]" />,
       link: '/clients',
       color: '#10b981',
       bgClass: 'hover:bg-[#10b981]/10 hover:border-[#10b981]/50'
@@ -48,7 +54,7 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
     {
       title: 'Parts & Services',
       desc: 'Manage inventory and labor catalogs',
-      icon: <Settings size={40} className="text-[#8b5cf6]" />,
+      icon: <Settings size={32} className="text-[#8b5cf6]" />,
       link: '/parts',
       color: '#8b5cf6',
       bgClass: 'hover:bg-[#8b5cf6]/10 hover:border-[#8b5cf6]/50'
@@ -56,7 +62,7 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
     {
       title: 'User Management',
       desc: 'Manage Garage Mechanics and Managers',
-      icon: <Users size={40} className="text-[#06b6d4]" />,
+      icon: <Users size={32} className="text-[#06b6d4]" />,
       link: '/users',
       color: '#06b6d4',
       bgClass: 'hover:bg-[#06b6d4]/10 hover:border-[#06b6d4]/50'
@@ -64,21 +70,69 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
     {
       title: 'AI Sales Analysis',
       desc: 'Predictive sales & customer behavior insights',
-      icon: <Zap size={40} className="text-[#ff00ff]" />,
+      icon: <Zap size={32} className="text-[#ff00ff]" />,
       link: '/ai-sales',
       color: '#ff00ff',
       bgClass: 'hover:bg-[#ff00ff]/10 hover:border-[#ff00ff]/50'
+    },
+    {
+      title: 'Financial Dashboard',
+      desc: 'Analytics, revenue, and overview',
+      icon: <PieChart size={32} className="text-[#3b82f6]" />,
+      link: '/dashboard',
+      color: '#3b82f6',
+      bgClass: 'hover:bg-[#3b82f6]/10 hover:border-[#3b82f6]/50'
+    },
+    {
+      title: 'Credits',
+      desc: 'Manage customer credit notes',
+      icon: <PlusCircle size={32} className="text-[#34d399]" />,
+      link: '/credits',
+      color: '#34d399',
+      bgClass: 'hover:bg-[#34d399]/10 hover:border-[#34d399]/50'
+    },
+    {
+      title: 'Debits',
+      desc: 'Manage debit notes and chargebacks',
+      icon: <MinusCircle size={32} className="text-[#f43f5e]" />,
+      link: '/debits',
+      color: '#f43f5e',
+      bgClass: 'hover:bg-[#f43f5e]/10 hover:border-[#f43f5e]/50'
+    },
+    {
+      title: 'Expenses',
+      desc: 'Track operational garage expenses',
+      icon: <Receipt size={32} className="text-[#f59e0b]" />,
+      link: '/expenses',
+      color: '#f59e0b',
+      bgClass: 'hover:bg-[#f59e0b]/10 hover:border-[#f59e0b]/50'
+    },
+    {
+      title: 'Transactions',
+      desc: 'Ledger of all financial transactions',
+      icon: <ArrowRightLeft size={32} className="text-[#c084fc]" />,
+      link: '/transactions',
+      color: '#c084fc',
+      bgClass: 'hover:bg-[#c084fc]/10 hover:border-[#c084fc]/50'
+    },
+    {
+      title: 'Settings',
+      desc: 'Configure MotoFit system preferences',
+      icon: <Sliders size={32} className="text-[#94a3b8]" />,
+      link: '/settings',
+      color: '#94a3b8',
+      bgClass: 'hover:bg-[#94a3b8]/10 hover:border-[#94a3b8]/50'
     }
   ];
 
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#050511] text-white overflow-hidden relative font-sans">
+    <div className="min-h-screen bg-[#050511] text-white overflow-hidden relative font-sans flex flex-col">
       
       {/* Animated Background Orbs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#f04923]/20 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#06b6d4]/15 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#f04923]/10 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
+      <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#06b6d4]/10 rounded-full blur-[150px] pointer-events-none"></div>
       <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] bg-[#ffd600]/10 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen backdrop-blur-3xl bg-black/40">
@@ -117,34 +171,34 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
         </header>
 
         {/* MAIN LAYOUT */}
-        <main className="flex-1 flex items-center justify-center p-8">
+        <main className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl w-full"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, staggerChildren: 0.15 }}
+            transition={{ duration: 0.6, staggerChildren: 0.1 }}
           >
             {features.map((feature, idx) => (
               <Link href={feature.link} key={idx} className="block h-full group">
                 <motion.div 
-                  whileHover={{ scale: 1.03, y: -10 }}
+                  whileHover={{ scale: 1.03, y: -5 }}
                   whileTap={{ scale: 0.97 }}
-                  className={`flex flex-col items-center justify-center p-10 text-center h-[340px] cursor-pointer relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 backdrop-blur-lg shadow-2xl transition-all duration-500 ${feature.bgClass}`}
+                  className={`flex flex-col items-center justify-center p-6 text-center h-[240px] cursor-pointer relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 backdrop-blur-lg shadow-2xl transition-all duration-500 ${feature.bgClass}`}
                 >
                   
                   <motion.div 
-                    className="w-24 h-24 rounded-2xl flex items-center justify-center mb-8 shadow-2xl relative z-10 bg-black/40 border border-white/5 group-hover:scale-110 transition-transform duration-500"
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-2xl relative z-10 bg-black/40 border border-white/5 group-hover:scale-110 transition-transform duration-500"
                     initial={{ rotate: -5 }}
                     animate={{ rotate: 0 }}
                   >
                     {feature.icon}
                   </motion.div>
                   
-                  <h2 className="text-2xl font-bold mb-3 z-10 text-white transition-colors tracking-tight">
+                  <h2 className="text-xl font-bold mb-2 z-10 text-white transition-colors tracking-tight">
                     {feature.title}
                   </h2>
-                  <p className="text-gray-400 text-sm z-10 group-hover:text-gray-300 transition-colors px-4 leading-relaxed">
+                  <p className="text-gray-400 text-xs z-10 group-hover:text-gray-300 transition-colors px-2 leading-relaxed">
                     {feature.desc}
                   </p>
                 </motion.div>
