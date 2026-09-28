@@ -112,133 +112,234 @@ export default function SettingsPage() {
         <main className="flex-1 overflow-y-auto p-6 bg-[#111111]">
           <div className="max-w-4xl border border-white/5 rounded-lg bg-[#161616]">
             
-            {/* Header & Tabs */}
+            {/* Header & Tabs (dynamic based on setting) */}
             <div className="p-6 pb-0 border-b border-white/5">
               <div className="flex items-baseline gap-3 mb-6">
-                <h2 className="text-xl font-medium text-white">Company</h2>
+                <h2 className="text-xl font-medium text-white">{activeSetting.split(' ')[0]}</h2>
                 <a href="#" className="text-blue-400 text-sm hover:underline">Learn more</a>
               </div>
 
-              <div className="flex gap-6">
-                {tabs.map(tab => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
-                      activeTab === tab ? 'border-white text-white' : 'border-transparent text-gray-400 hover:text-gray-200'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
+              {activeSetting === 'Company Details' && (
+                <div className="flex gap-6">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
+                        activeTab === tab ? 'border-white text-white' : 'border-transparent text-gray-400 hover:text-gray-200'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Form Fields */}
+            {/* Form Fields - Dynamically Rendered */}
             <div className="p-6 space-y-6">
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">Company Name</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="text" 
-                    defaultValue="MotoFit (Nigam Nagar)"
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">ID Number</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="text" 
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">VAT Number</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="text" 
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">Website</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="text" 
-                    defaultValue="http://www.motofit.com"
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">Email</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="email" 
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">Company Phone</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="text" 
-                    defaultValue="+91 9876543210"
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">Company Size</label>
-                <div className="md:col-span-2 relative">
-                  <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
-                    <option>1 - 3</option>
-                    <option>4 - 10</option>
-                    <option>11 - 50</option>
-                  </select>
-                  <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">Industry</label>
-                <div className="md:col-span-2 relative">
-                  <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
-                    <option>Automotive / Repair</option>
-                    <option>Manufacturing</option>
-                    <option>Retail</option>
-                  </select>
-                  <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <label className="text-sm text-gray-400 md:text-right md:pr-4">Classification</label>
-                <div className="md:col-span-2 relative">
-                  <div className="flex items-center w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus-within:border-white/30 transition-colors">
-                    <select className="bg-transparent border-none outline-none appearance-none w-full">
-                      <option>Business</option>
-                      <option>Individual</option>
-                    </select>
-                    <div className="flex items-center gap-2 ml-2">
-                      <X size={14} className="text-gray-500 hover:text-white cursor-pointer" />
-                      <ChevronDown size={16} className="text-gray-500 pointer-events-none" />
+              {activeSetting === 'Company Details' && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Company Name</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="text" 
+                        defaultValue="MotoFit (Nigam Nagar)"
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">ID Number</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="text" 
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">VAT Number</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="text" 
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Website</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="text" 
+                        defaultValue="http://www.motofit.com"
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Email</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="email" 
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Company Phone</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="text" 
+                        defaultValue="+91 9876543210"
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Company Size</label>
+                    <div className="md:col-span-2 relative">
+                      <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
+                        <option>1 - 3</option>
+                        <option>4 - 10</option>
+                        <option>11 - 50</option>
+                      </select>
+                      <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Industry</label>
+                    <div className="md:col-span-2 relative">
+                      <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
+                        <option>Automotive / Repair</option>
+                        <option>Manufacturing</option>
+                        <option>Retail</option>
+                      </select>
+                      <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Classification</label>
+                    <div className="md:col-span-2 relative">
+                      <div className="flex items-center w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus-within:border-white/30 transition-colors">
+                        <select className="bg-transparent border-none outline-none appearance-none w-full">
+                          <option>Business</option>
+                          <option>Individual</option>
+                        </select>
+                        <div className="flex items-center gap-2 ml-2">
+                          <X size={14} className="text-gray-500 hover:text-white cursor-pointer" />
+                          <ChevronDown size={16} className="text-gray-500 pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeSetting === 'User Details' && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">First Name</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="text" 
+                        defaultValue="Admin"
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Last Name</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="text" 
+                        defaultValue="User"
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Email</label>
+                    <div className="md:col-span-2">
+                      <input 
+                        type="email" 
+                        defaultValue="admin@motofit.com"
+                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeSetting === 'Localization' && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Language</label>
+                    <div className="md:col-span-2 relative">
+                      <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
+                        <option>English</option>
+                        <option>Hindi</option>
+                        <option>Spanish</option>
+                      </select>
+                      <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Timezone</label>
+                    <div className="md:col-span-2 relative">
+                      <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
+                        <option>Asia/Kolkata</option>
+                        <option>UTC</option>
+                        <option>America/New_York</option>
+                      </select>
+                      <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Currency</label>
+                    <div className="md:col-span-2 relative">
+                      <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
+                        <option>INR - Indian Rupee (₹)</option>
+                        <option>USD - US Dollar ($)</option>
+                      </select>
+                      <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeSetting === 'Tax Settings' && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Tax Rates</label>
+                    <div className="md:col-span-2 relative">
+                      <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
+                        <option>GST 18%</option>
+                        <option>GST 28%</option>
+                        <option>No Tax</option>
+                      </select>
+                      <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {!['Company Details', 'User Details', 'Localization', 'Tax Settings'].includes(activeSetting) && (
+                <div className="py-12 flex flex-col items-center justify-center text-gray-500">
+                  <p className="mb-2">Settings for <strong>{activeSetting}</strong> are not yet configured.</p>
+                  <p className="text-sm text-gray-600">This module is part of the MotoFit Pro suite.</p>
                 </div>
-              </div>
+              )}
 
             </div>
           </div>
