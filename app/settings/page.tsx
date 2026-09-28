@@ -174,7 +174,7 @@ export default function SettingsPage() {
                     <div className="md:col-span-2">
                       <input 
                         type="text" 
-                        defaultValue="MotoFit (Nigam Nagar)"
+                        defaultValue=""
                         className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
@@ -205,7 +205,7 @@ export default function SettingsPage() {
                     <div className="md:col-span-2">
                       <input 
                         type="text" 
-                        defaultValue="http://www.motofit.com"
+                        defaultValue=""
                         className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
@@ -226,7 +226,7 @@ export default function SettingsPage() {
                     <div className="md:col-span-2">
                       <input 
                         type="text" 
-                        defaultValue="+91 9876543210"
+                        defaultValue=""
                         className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
@@ -333,7 +333,7 @@ export default function SettingsPage() {
                     <div className="md:col-span-2">
                       <input 
                         type="text" 
-                        defaultValue="Admin"
+                        defaultValue=""
                         className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
@@ -343,7 +343,7 @@ export default function SettingsPage() {
                     <div className="md:col-span-2">
                       <input 
                         type="text" 
-                        defaultValue="User"
+                        defaultValue=""
                         className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
@@ -353,7 +353,7 @@ export default function SettingsPage() {
                     <div className="md:col-span-2">
                       <input 
                         type="email" 
-                        defaultValue="admin@motofit.com"
+                        defaultValue=""
                         className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
@@ -431,7 +431,7 @@ export default function SettingsPage() {
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Primary Color</label>
                     <div className="md:col-span-2">
                       <div className="flex items-center gap-3">
-                        <input type="color" defaultValue="#3b82f6" className="w-10 h-10 bg-transparent rounded cursor-pointer" />
+                        <input type="color" defaultValue="" className="w-10 h-10 bg-transparent rounded cursor-pointer" />
                         <span className="text-gray-400 text-sm">#3B82F6</span>
                       </div>
                     </div>
@@ -450,7 +450,7 @@ export default function SettingsPage() {
                     <div className="md:col-span-2">
                       <input 
                         type="number" 
-                        defaultValue="9"
+                        defaultValue=""
                         className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
@@ -470,8 +470,8 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-t border-white/5 pt-6">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4 pt-2">Invoice Fields</label>
                     <div className="md:col-span-2 space-y-3">
-                      <input type="text" placeholder="Vehicle Registration No." defaultValue="Reg. Number" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
-                      <input type="text" placeholder="Odometer Reading" defaultValue="Mileage" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="text" placeholder="Vehicle Registration No." defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="text" placeholder="Odometer Reading" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                 </>
@@ -482,25 +482,25 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Invoice Prefix</label>
                     <div className="md:col-span-2">
-                      <input type="text" defaultValue="INV-" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="text" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Quote Prefix</label>
                     <div className="md:col-span-2">
-                      <input type="text" defaultValue="EST-" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="text" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Number Padding</label>
                     <div className="md:col-span-2">
-                      <input type="number" defaultValue="4" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="number" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Next Invoice Number</label>
                     <div className="md:col-span-2">
-                      <input type="number" defaultValue="1054" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="number" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                 </>
@@ -520,7 +520,7 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Portal URL</label>
                     <div className="md:col-span-2">
-                      <input type="text" defaultValue="https://portal.motofit.com/client" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="text" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -566,19 +566,19 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">SMTP Host</label>
                     <div className="md:col-span-2">
-                      <input type="text" defaultValue="smtp.mailgun.org" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="text" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">SMTP Port</label>
                     <div className="md:col-span-2">
-                      <input type="text" defaultValue="587" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="text" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">SMTP Username</label>
                     <div className="md:col-span-2">
-                      <input type="text" defaultValue="postmaster@motofit.com" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="text" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -609,19 +609,19 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">First Reminder (Days late)</label>
                     <div className="md:col-span-2">
-                      <input type="number" defaultValue="3" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="number" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Second Reminder (Days late)</label>
                     <div className="md:col-span-2">
-                      <input type="number" defaultValue="7" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="number" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Late Fee (%)</label>
                     <div className="md:col-span-2">
-                      <input type="number" defaultValue="5" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="number" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                 </>
@@ -643,13 +643,13 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">API Key / Secret</label>
                     <div className="md:col-span-2">
-                      <input type="password" defaultValue="sk_test_123456789" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="password" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4 pt-2">Bank Transfer Details</label>
                     <div className="md:col-span-2">
-                      <textarea rows={3} defaultValue="HDFC Bank&#10;Acct: 123456789&#10;IFSC: HDFC0001234" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors resize-none"></textarea>
+                      <textarea rows={3} defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors resize-none"></textarea>
                     </div>
                   </div>
                 </>
@@ -694,7 +694,7 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Link Expiration (Days)</label>
                     <div className="md:col-span-2">
-                      <input type="number" defaultValue="30" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="number" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                 </>
@@ -716,7 +716,7 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Failed Payment Retries</label>
                     <div className="md:col-span-2">
-                      <input type="number" defaultValue="3" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                      <input type="number" defaultValue="" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
                     </div>
                   </div>
                 </>
@@ -740,18 +740,7 @@ export default function SettingsPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
-                        <tr className="hover:bg-white/5 transition-colors">
-                          <td className="p-3 text-white">Admin User</td>
-                          <td className="p-3 text-gray-400">admin@motofit.com</td>
-                          <td className="p-3"><span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">Admin</span></td>
-                          <td className="p-3 text-right"><button className="text-blue-400 hover:underline text-xs">Edit</button></td>
-                        </tr>
-                        <tr className="hover:bg-white/5 transition-colors">
-                          <td className="p-3 text-white">Garage Staff 1</td>
-                          <td className="p-3 text-gray-400">staff@motofit.com</td>
-                          <td className="p-3"><span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded text-xs">Editor</span></td>
-                          <td className="p-3 text-right"><button className="text-blue-400 hover:underline text-xs">Edit</button></td>
-                        </tr>
+                        <tr><td colSpan={4} className="p-4 text-center text-gray-500">No users found. Go to main User Management tab to add users.</td></tr>
                       </tbody>
                     </table>
                   </div>
