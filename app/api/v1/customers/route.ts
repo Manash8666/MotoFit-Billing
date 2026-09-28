@@ -29,8 +29,10 @@ export async function POST(req: Request) {
   try {
     const { name, phone, vehicle } = await req.json();
 
-    const customer = await prisma.customer.create({
-      data: {
+    const customer = await prisma.customer.upsert({
+      where: { phone },
+      update: { name },
+      create: {
         name,
         phone,
         vehicles: vehicle ? {

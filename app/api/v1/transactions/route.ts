@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const { type, reference, account, amount } = await req.json();
 
     // Get a default user (temporary until auth is fully integrated)
-    let defaultUser = await prisma.user.findFirst();
+    let defaultUser = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN', deletedAt: null } });
     if (!defaultUser) {
       defaultUser = await prisma.user.create({
         data: {

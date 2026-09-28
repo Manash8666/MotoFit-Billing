@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Home, Filter, MoreHorizontal, ArrowUpRight, ArrowDownRight, X, Download, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface Transaction {
   id: string;
@@ -62,22 +64,34 @@ export default function TransactionsPage() {
   };
 
   const handleExportAuditReport = () => {
-    const headers = ['Transaction ID', 'Type', 'Reference', 'Date', 'Account', 'Amount', 'Status'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredTransactions.map(t => 
-        `"${t.id}","${t.type}","${t.reference}","${t.date}","${t.account}","${t.amount.replace('₹', '')}","${t.status}"`
-      )
-    ].join('\n');
+    const doc = new jsPDF();
     
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `MotoFit_CA_Audit_Report_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(0, 0, 0);
+    doc.text("MotoFit Financial Audit Ledger", 14, 22);
+    
+    // Sub-header details
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 30);
+    doc.text(`Report Type: Immutable Ledger Export`, 14, 36);
+
+    const tableColumn = ["Transaction ID", "Type", "Reference", "Date", "Account/Vendor", "Amount", "Status"];
+    const tableRows = filteredTransactions.map(t => [
+      t.id, t.type, t.reference, t.date, t.account, t.amount, t.status
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 45,
+      theme: 'striped',
+      headStyles: { fillColor: [16, 185, 129] }, // MotoFit Green
+      styles: { fontSize: 10 },
+    });
+
+    doc.save(`MotoFit_Audit_Report_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (

@@ -28,14 +28,11 @@ export async function POST(req: Request) {
     const result = await prisma.$transaction(async (tx) => {
       
       // Upsert Customer
-      let customer = await tx.customer.findFirst({
-        where: { phone: customerPhone }
+      let customer = await tx.customer.upsert({
+        where: { phone: customerPhone },
+        update: { name: customerName },
+        create: { name: customerName, phone: customerPhone }
       });
-      if (!customer) {
-        customer = await tx.customer.create({
-          data: { name: customerName, phone: customerPhone }
-        });
-      }
 
       // Upsert Vehicle
       let vehicle = await tx.vehicle.findUnique({
@@ -53,7 +50,7 @@ export async function POST(req: Request) {
       }
 
       // Get a default user (temporary until auth is fully integrated)
-      let defaultUser = await tx.user.findFirst();
+      let defaultUser = await tx.user.findFirst({ where: { role: 'SUPER_ADMIN', deletedAt: null } });
       if (!defaultUser) {
         defaultUser = await tx.user.create({
           data: {
