@@ -6,12 +6,40 @@ import Link from 'next/link';
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('Details');
   const [activeSetting, setActiveSetting] = useState('Company Details');
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [resetConfirmation, setResetConfirmation] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+
+  const handleResetData = async () => {
+    if (resetConfirmation !== 'CONFIRM_RESET') {
+      alert("Invalid confirmation code");
+      return;
+    }
+    setIsResetting(true);
+    try {
+      const res = await fetch('/api/v1/settings/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmation: resetConfirmation })
+      });
+      if (res.ok) {
+        alert("Database wiped successfully. Reloading...");
+        window.location.reload();
+      } else {
+        alert("Failed to reset database");
+      }
+    } catch (e) {
+      alert("Error resetting database");
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const basicSettings = [
     'Company Details', 'User Details', 'Localization', 'Payment Settings', 
     'Tax Settings', 'Product Settings', 'Task Settings', 'Tags', 
     'Expense Settings', 'Workflow Settings', 'Account Management', 
-    'Backup | Restore', 'Import | Export'
+    'Backup | Restore', 'Import | Export', 'Danger Zone'
   ];
 
   const advancedSettings = [
@@ -730,6 +758,26 @@ export default function SettingsPage() {
                 </>
               )}
 
+              {activeSetting === 'Danger Zone' && (
+                <div className="flex flex-col gap-6">
+                  <div className="border border-red-500/20 bg-red-500/5 rounded-lg p-6 flex flex-col items-start gap-4">
+                    <div className="flex items-center gap-3 text-red-400">
+                      <X size={24} className="bg-red-500/20 p-1 rounded" />
+                      <h3 className="text-lg font-medium">Wipe All Data</h3>
+                    </div>
+                    <p className="text-gray-400 text-sm max-w-xl">
+                      This action is irreversible. It will delete all your customers, vehicles, transactions, bills, and user accounts. The system will be reset to a completely blank slate.
+                    </p>
+                    <button 
+                      onClick={() => setIsResetModalOpen(true)}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-md transition-colors"
+                    >
+                      Delete All Data
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {!basicSettings.includes(activeSetting) && !advancedSettings.includes(activeSetting) && (
                 <div className="py-12 flex flex-col items-center justify-center text-gray-500">
                   <p className="mb-2">Settings for <strong>{activeSetting}</strong> are not yet configured.</p>
@@ -741,6 +789,50 @@ export default function SettingsPage() {
           </div>
         </main>
       </div>
+
+      {/* Danger Zone Modal */}
+      {isResetModalOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+          <div className="bg-[#161616] border border-red-500/20 rounded-xl shadow-2xl w-full max-w-md overflow-hidden relative">
+            <button onClick={() => setIsResetModalOpen(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors">
+              <X size={20} />
+            </button>
+            <div className="p-6">
+              <h2 className="text-xl font-medium text-red-500 mb-2">Confirm Data Wipe</h2>
+              <p className="text-gray-400 text-sm mb-6">
+                Are you absolutely sure? Type <strong className="text-white select-all">CONFIRM_RESET</strong> below to proceed.
+              </p>
+              
+              <div className="mb-6">
+                <input 
+                  type="text" 
+                  value={resetConfirmation}
+                  onChange={(e) => setResetConfirmation(e.target.value)}
+                  placeholder="Type CONFIRM_RESET here..."
+                  className="w-full bg-[#111111] border border-white/10 rounded-md px-4 py-2 text-white focus:outline-none focus:border-red-500/50 transition-colors placeholder-gray-600"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setIsResetModalOpen(false)}
+                  className="flex-1 py-2 rounded-md bg-white/5 hover:bg-white/10 text-white font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleResetData}
+                  disabled={resetConfirmation !== 'CONFIRM_RESET' || isResetting}
+                  className="flex-1 py-2 rounded-md bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium transition-colors"
+                >
+                  {isResetting ? 'Wiping...' : 'Wipe Data'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
