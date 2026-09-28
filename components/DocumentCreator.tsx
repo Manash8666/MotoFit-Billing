@@ -26,18 +26,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
     paymentMethod: "CASH" as "CASH" | "BANK_TRANSFER" | "UPI",
   });
 
-  const [items, setItems] = useState<LineItem[]>([
-    {
-      id: "1",
-      sectionName: "ROUTINE MAINTENANCE & ENGINE SERVICING",
-      title: "General Service",
-      description: "Comprehensive motorcycle routine servicing",
-      quantity: 1,
-      qtyUnit: "Pcs",
-      rate: 300,
-      mrpDiscount: 0,
-    }
-  ]);
+  const [items, setItems] = useState<LineItem[]>([]);
 
   const handleAddRow = () => {
     setItems([
@@ -208,6 +197,16 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
               placeholder="e.g. GJ 01 VP 8363"
               value={formData.vehicleReg} 
               onChange={e => setFormData({...formData, vehicleReg: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-gray-400 mb-1">Odometer (KM)</label>
+            <input 
+              type="number" 
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              placeholder="e.g. 12500"
+              value={formData.runningKm} 
+              onChange={e => setFormData({...formData, runningKm: Number(e.target.value)})}
             />
           </div>
           <div className="md:col-span-1">

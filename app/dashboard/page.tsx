@@ -11,10 +11,12 @@ export default function FinancialDashboardPage() {
     fetch('/api/v1/transactions')
       .then(res => res.json())
       .then((data: any[]) => {
+        if (!Array.isArray(data)) return;
         let rev = 0;
         let exp = 0;
         data.forEach(t => {
-          const val = parseFloat(t.amount.replace(/[^0-9.-]+/g, ""));
+          const raw = t.amount ? t.amount.toString().replace(/[^0-9.-]+/g, "") : "0";
+          const val = parseFloat(raw) || 0;
           if (t.type === 'Income') rev += val;
           if (t.type === 'Expense') exp += val;
         });

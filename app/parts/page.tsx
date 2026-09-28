@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Settings, Plus, Search, Box, X } from 'lucide-react';
 import Link from 'next/link';
-import Papa from 'papaparse';
 
 export default function PartsPage() {
   const [parts, setParts] = useState<any[]>([]);

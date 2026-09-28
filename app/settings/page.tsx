@@ -9,6 +9,12 @@ export default function SettingsPage() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetConfirmation, setResetConfirmation] = useState('');
   const [isResetting, setIsResetting] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
+
+  const handleSaveSettings = () => {
+    setSaveStatus('saved');
+    setTimeout(() => setSaveStatus('idle'), 2000);
+  };
 
   const handleResetData = async () => {
     if (resetConfirmation !== 'CONFIRM_RESET') {
@@ -74,8 +80,8 @@ export default function SettingsPage() {
           <Link href="/" className="px-4 py-1.5 text-sm font-medium border border-white/10 rounded-md hover:bg-white/5 transition-colors">
             Cancel
           </Link>
-          <button onClick={() => alert('Settings saved successfully!')} className="px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
-            Save
+          <button onClick={handleSaveSettings} className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${saveStatus === 'saved' ? 'bg-green-600 text-white' : 'bg-white text-black hover:bg-gray-200'}`}>
+            {saveStatus === 'saved' ? '✓ Saved' : 'Save'}
           </button>
         </div>
       </header>
@@ -725,9 +731,9 @@ export default function SettingsPage() {
               {activeSetting === 'User Management' && (
                 <>
                   <div className="flex justify-end mb-4">
-                    <button className="px-4 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors">
+                    <Link href="/users" className="px-4 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors">
                       + Add New User
-                    </button>
+                    </Link>
                   </div>
                   <div className="border border-white/5 rounded-md overflow-hidden">
                     <table className="w-full text-left text-sm">
