@@ -1,0 +1,293 @@
+"use client";
+
+import React, { useState } from "react";
+import { MotoFitPrintableInvoice, PrintableDocProps } from "@/components/MotoFitPrintableInvoice";
+import { Plus, Trash2, Eye, Edit2, Download } from "lucide-react";
+
+type LineItem = PrintableDocProps["data"]["items"][0];
+
+interface DocumentCreatorProps {
+  docType: "SOW_BILL" | "ESTIMATE";
+}
+
+export default function DocumentCreator({ docType }: DocumentCreatorProps) {
+  const [isPreview, setIsPreview] = useState(false);
+  const [formData, setFormData] = useState({
+    docNumber: docType === "SOW_BILL" ? "MF2-PASS-01" : "MF2-EST-01",
+    date: new Date().toISOString().split("T")[0],
+    customerName: "",
+    customerPhone: "",
+    vehicleReg: "",
+    makeModel: "",
+    runningKm: 0,
+    workTypeNote: "",
+    paymentMethod: "CASH" as "CASH" | "BANK_TRANSFER" | "UPI",
+  });
+
+  const [items, setItems] = useState<LineItem[]>([
+    {
+      id: "1",
+      sectionName: "ROUTINE MAINTENANCE & ENGINE SERVICING",
+      title: "General Service",
+      description: "Comprehensive motorcycle routine servicing",
+      quantity: 1,
+      qtyUnit: "Pcs",
+      rate: 300,
+      mrpDiscount: 0,
+    }
+  ]);
+
+  const handleAddRow = () => {
+    setItems([
+      ...items,
+      {
+        id: Date.now().toString(),
+        sectionName: items.length > 0 ? items[items.length - 1].sectionName : "",
+        title: "",
+        description: "",
+        quantity: 1,
+        qtyUnit: "Pcs",
+        rate: 0,
+        mrpDiscount: 0,
+      }
+    ]);
+  };
+
+  const handleRemoveRow = (id: string) => {
+    setItems(items.filter(item => item.id !== id));
+  };
+
+  const handleItemChange = (id: string, field: keyof LineItem, value: any) => {
+    setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
+  const getInvoiceData = (): PrintableDocProps["data"] => {
+    return {
+      docType,
+      docNumber: formData.docNumber,
+      date: formData.date,
+      customerName: formData.customerName,
+      customerPhone: formData.customerPhone,
+      vehicleReg: formData.vehicleReg,
+      makeModel: formData.makeModel,
+      runningKm: Number(formData.runningKm),
+      workTypeNote: formData.workTypeNote,
+      paymentMethod: formData.paymentMethod,
+      items: items.map(item => ({
+        ...item,
+        quantity: Number(item.quantity),
+        rate: Number(item.rate)
+      }))
+    };
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  if (isPreview) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="w-full flex justify-between mb-6 no-print">
+          <button 
+            onClick={() => setIsPreview(false)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+          >
+            <Edit2 size={16} /> Edit Details
+          </button>
+          <button 
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2 bg-[#f04923] text-white rounded hover:bg-red-600 transition shadow-lg shadow-red-500/30"
+          >
+            <Download size={16} /> Print / Save PDF
+          </button>
+        </div>
+        <div className="shadow-2xl overflow-hidden print:shadow-none print:w-full">
+          <MotoFitPrintableInvoice data={getInvoiceData()} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 text-sm">
+      {/* Meta Data Form */}
+      <div className="bg-[#1a233a] p-6 rounded-xl border border-gray-800">
+        <h3 className="text-xl font-bold mb-4 text-[#f04923]">Document Details</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-gray-400 mb-1">Doc Number</label>
+            <input 
+              type="text" 
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              value={formData.docNumber} 
+              onChange={e => setFormData({...formData, docNumber: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-gray-400 mb-1">Date</label>
+            <input 
+              type="date" 
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              value={formData.date} 
+              onChange={e => setFormData({...formData, date: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-gray-400 mb-1">Customer Name</label>
+            <input 
+              type="text" 
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              placeholder="e.g. Dharamveer Sir"
+              value={formData.customerName} 
+              onChange={e => setFormData({...formData, customerName: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-gray-400 mb-1">Customer Phone</label>
+            <input 
+              type="text" 
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              placeholder="+91 98765 43210"
+              value={formData.customerPhone} 
+              onChange={e => setFormData({...formData, customerPhone: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-gray-400 mb-1">Vehicle Make & Model</label>
+            <input 
+              type="text" 
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              placeholder="e.g. Hero Passion Pro APDV"
+              value={formData.makeModel} 
+              onChange={e => setFormData({...formData, makeModel: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-gray-400 mb-1">Registration Number</label>
+            <input 
+              type="text" 
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              placeholder="e.g. GJ 01 VP 8363"
+              value={formData.vehicleReg} 
+              onChange={e => setFormData({...formData, vehicleReg: e.target.value})}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-gray-400 mb-1">Bottom Billing Notice / Remark</label>
+            <input 
+              type="text" 
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              placeholder="e.g. Chain tensioned & lubricated today..."
+              value={formData.workTypeNote} 
+              onChange={e => setFormData({...formData, workTypeNote: e.target.value})}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Line Items Form */}
+      <div className="bg-[#1a233a] p-6 rounded-xl border border-gray-800">
+        <h3 className="text-xl font-bold mb-4 text-[#f04923]">Line Items</h3>
+        
+        <div className="space-y-4">
+          {items.map((item, idx) => (
+            <div key={item.id} className="p-4 border border-gray-700 bg-[#0b132b] rounded flex flex-col gap-3 relative">
+              <button 
+                onClick={() => handleRemoveRow(item.id)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+              >
+                <Trash2 size={16} />
+              </button>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-8">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Section Heading (Optional)</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
+                    placeholder="e.g. ROUTINE MAINTENANCE"
+                    value={item.sectionName || ""} 
+                    onChange={e => handleItemChange(item.id, "sectionName", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Item Title</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
+                    placeholder="e.g. Engine Oil Motul"
+                    value={item.title} 
+                    onChange={e => handleItemChange(item.id, "title", e.target.value)}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs text-gray-500 mb-1">Description (Optional)</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
+                    placeholder="e.g. Motul semi-synthetic 4T..."
+                    value={item.description || ""} 
+                    onChange={e => handleItemChange(item.id, "description", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-3 pr-8">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Qty</label>
+                  <input 
+                    type="number" 
+                    className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
+                    value={item.quantity} 
+                    onChange={e => handleItemChange(item.id, "quantity", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Unit</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
+                    value={item.qtyUnit || ""} 
+                    onChange={e => handleItemChange(item.id, "qtyUnit", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Rate (₹)</label>
+                  <input 
+                    type="number" 
+                    className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
+                    value={item.rate} 
+                    onChange={e => handleItemChange(item.id, "rate", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Total (₹)</label>
+                  <div className="w-full bg-gray-800 border border-gray-700 rounded p-1.5 text-white font-mono flex items-center h-[34px]">
+                    {Number(item.quantity) * Number(item.rate)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button 
+          onClick={handleAddRow}
+          className="mt-4 flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition text-sm"
+        >
+          <Plus size={16} /> Add Line Item
+        </button>
+      </div>
+
+      <div className="flex justify-end">
+        <button 
+          onClick={() => setIsPreview(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-[#f04923] text-white rounded-lg hover:bg-red-600 transition shadow-lg shadow-red-500/30 text-lg font-bold"
+        >
+          <Eye size={20} /> Preview Document
+        </button>
+      </div>
+    </div>
+  );
+}
