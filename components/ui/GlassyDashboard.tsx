@@ -21,6 +21,7 @@ import {
 
 export default function GlassyDashboard({ userName = 'Admin' }: { userName?: string }) {
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   useEffect(() => {
     setMounted(true);
@@ -128,7 +129,7 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#050511] text-white overflow-hidden relative font-sans flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-[#1a1a2e] via-[#050511] to-black text-white overflow-hidden relative font-sans flex flex-col">
       
       {/* Animated Background Orbs */}
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#f04923]/10 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
@@ -138,35 +139,37 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
       <div className="relative z-10 flex flex-col min-h-screen backdrop-blur-3xl bg-black/40">
         
         {/* TOP NAV BAR */}
-        <header className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5 backdrop-blur-md">
-          <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between p-6 border-b border-t-white/10 border-l-white/10 border-b-black/80 border-r-black/80 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-xl shadow-2xl relative z-50">
+          <Link href="/" className="flex items-center gap-3 hover:scale-105 transition-transform duration-300">
             <div className="w-10 h-10 bg-gradient-to-br from-[#f04923] to-[#ffaa00] rounded-xl flex items-center justify-center shadow-lg shadow-[#f04923]/30">
               <Zap size={22} className="text-white" strokeWidth={2.5} />
             </div>
             <h1 className="text-2xl font-bold tracking-tight">MotoFit <span className="text-[#f04923]">OS</span></h1>
-          </div>
+          </Link>
 
-          <div className="hidden md:flex items-center bg-white/5 border border-white/10 rounded-full px-4 py-2 w-96 focus-within:border-white/30 focus-within:bg-white/10 transition-all">
+          <div className="hidden md:flex items-center bg-black/40 border border-t-black/80 border-l-black/80 border-b-white/10 border-r-white/10 shadow-inner rounded-full px-4 py-2 w-96 focus-within:border-white/30 focus-within:bg-black/60 transition-all">
             <Search size={18} className="text-gray-400 mr-3" />
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search invoices, estimates or mechanics..." 
               className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-gray-500"
             />
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="text-gray-400 hover:text-white transition-colors">
+            <Link href="/settings" className="text-gray-400 hover:text-white transition-colors">
               <Settings size={22} />
-            </button>
-            <div className="flex items-center gap-3 pl-6 border-l border-white/10">
+            </Link>
+            <Link href="/users" className="flex items-center gap-3 pl-6 border-l border-white/10 hover:text-[#f04923] transition-colors">
               <img 
                 src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=120&h=120&q=80" 
                 alt="User" 
                 className="w-10 h-10 rounded-full border-2 border-white/20"
               />
               <span className="font-medium hidden sm:block">{userName}</span>
-            </div>
+            </Link>
           </div>
         </header>
 
@@ -182,23 +185,26 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
             {features.map((feature, idx) => (
               <Link href={feature.link} key={idx} className="block h-full group">
                 <motion.div 
-                  whileHover={{ scale: 1.03, y: -5 }}
-                  whileTap={{ scale: 0.97 }}
-                  className={`flex flex-col items-center justify-center p-6 text-center h-[240px] cursor-pointer relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 backdrop-blur-lg shadow-2xl transition-all duration-500 ${feature.bgClass}`}
+                  whileHover={{ scale: 1.05, y: -8, rotateX: 2, rotateY: 2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex flex-col items-center justify-center p-6 text-center h-[240px] cursor-pointer relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-transparent border border-t-white/30 border-l-white/20 border-b-black/50 border-r-black/50 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500"
+                  style={{ perspective: 1000 }}
                 >
+                  {/* Subtle inner highlight */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-white/5 rounded-3xl pointer-events-none"></div>
                   
                   <motion.div 
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-2xl relative z-10 bg-black/40 border border-white/5 group-hover:scale-110 transition-transform duration-500"
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-2xl relative z-10 bg-gradient-to-br from-white/10 to-black/40 border border-t-white/30 border-l-white/20 border-b-black/60 border-r-black/60 group-hover:scale-110 transition-transform duration-500"
                     initial={{ rotate: -5 }}
                     animate={{ rotate: 0 }}
                   >
                     {feature.icon}
                   </motion.div>
                   
-                  <h2 className="text-xl font-bold mb-2 z-10 text-white transition-colors tracking-tight">
+                  <h2 className="text-xl font-bold mb-2 z-10 text-white transition-colors tracking-tight drop-shadow-md">
                     {feature.title}
                   </h2>
-                  <p className="text-gray-400 text-xs z-10 group-hover:text-gray-300 transition-colors px-2 leading-relaxed">
+                  <p className="text-gray-300 text-xs z-10 group-hover:text-white transition-colors px-2 leading-relaxed drop-shadow-sm">
                     {feature.desc}
                   </p>
                 </motion.div>
@@ -207,6 +213,10 @@ export default function GlassyDashboard({ userName = 'Admin' }: { userName?: str
           </motion.div>
           
         </main>
+
+        <footer className="w-full text-center p-4 text-xs text-gray-500 border-t border-white/5 bg-black/20">
+          Powered by MotoFit OS • <a href="https://motofit2.in" target="_blank" rel="noopener noreferrer" className="text-[#f04923] hover:underline">motofit2.in</a>
+        </footer>
       </div>
     </div>
   )

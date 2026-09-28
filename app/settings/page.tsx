@@ -43,10 +43,10 @@ export default function SettingsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="px-4 py-1.5 text-sm font-medium border border-white/10 rounded-md hover:bg-white/5 transition-colors">
+          <Link href="/" className="px-4 py-1.5 text-sm font-medium border border-white/10 rounded-md hover:bg-white/5 transition-colors">
             Cancel
-          </button>
-          <button className="px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
+          </Link>
+          <button onClick={() => alert('Settings saved successfully!')} className="px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
             Save
           </button>
         </div>
@@ -139,7 +139,7 @@ export default function SettingsPage() {
             {/* Form Fields - Dynamically Rendered */}
             <div className="p-6 space-y-6">
               
-              {activeSetting === 'Company Details' && (
+              {activeSetting === 'Company Details' && activeTab === 'Details' && (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm text-gray-400 md:text-right md:pr-4">Company Name</label>
@@ -246,6 +246,58 @@ export default function SettingsPage() {
                 </>
               )}
 
+              {activeSetting === 'Company Details' && activeTab === 'Address' && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Street Address</label>
+                    <div className="md:col-span-2">
+                      <input type="text" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">City</label>
+                    <div className="md:col-span-2">
+                      <input type="text" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">State/Province</label>
+                    <div className="md:col-span-2">
+                      <input type="text" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Postal Code</label>
+                    <div className="md:col-span-2">
+                      <input type="text" className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors" />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeSetting === 'Company Details' && activeTab === 'Logo' && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm text-gray-400 md:text-right md:pr-4">Company Logo</label>
+                    <div className="md:col-span-2 flex items-center gap-4">
+                      <div className="w-24 h-24 bg-[#0a0a0a] border-2 border-dashed border-white/20 rounded-xl flex items-center justify-center text-gray-500 hover:border-white/40 hover:text-gray-300 transition-colors cursor-pointer">
+                        <span className="text-xs">Upload Logo</span>
+                      </div>
+                      <div className="text-xs text-gray-500 max-w-xs">
+                        Recommended size: 256x256px. Max file size: 2MB. Supported formats: PNG, JPG, SVG.
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeSetting === 'Company Details' && !['Details', 'Address', 'Logo'].includes(activeTab) && (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                  <p className="text-sm mb-2">No settings configured for {activeTab} yet.</p>
+                  <p className="text-xs">This section is under construction.</p>
+                </div>
+              )}
+
               {activeSetting === 'User Details' && (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -310,7 +362,6 @@ export default function SettingsPage() {
                     <div className="md:col-span-2 relative">
                       <select className="w-full bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 transition-colors appearance-none">
                         <option>INR - Indian Rupee (₹)</option>
-                        <option>USD - US Dollar ($)</option>
                       </select>
                       <ChevronDown size={16} className="absolute right-3 top-2.5 text-gray-500 pointer-events-none" />
                     </div>

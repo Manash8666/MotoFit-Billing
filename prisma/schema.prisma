@@ -9,8 +9,10 @@ generator client {
 }
 
 enum Role {
-  SERVICE_MANAGER
-  SENIOR_MECHANIC
+  SUPER_ADMIN // Full access (CA/Owner)
+  SERVICE_MANAGER // Manager level
+  SENIOR_MECHANIC // Mechanic level
+  AUDITOR // Read-only financial access
 }
 
 enum DocumentType {
@@ -37,21 +39,45 @@ enum PaymentMethod {
   UPI
 }
 
+enum TransactionType {
+  CREDIT
+  DEBIT
+  EXPENSE
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  RECONCILED // For financial auditing
+}
+
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  phone     String   @unique
-  pinHash   String
-  role      Role     @default(SENIOR_MECHANIC)
-  createdAt DateTime @default(now())
+  id             String    @id @default(uuid())
+  name           String
+  phone          String    @unique
+  pinHash        String
+  role           Role      @default(SENIOR_MECHANIC)
+  isActive       Boolean   @default(true)
+  failedAttempts Int       @default(0)
+  lastLogin      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime? // Soft delete for security
+
+  auditLogs AuditLog[] // Actions performed by this user
 }
 
 model Customer {
   id        String    @id @default(uuid())
   name      String
   phone     String
+  email     String?
+  vatNumber String?
   vehicles  Vehicle[]
   createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
 
   @@index([phone])
 }
@@ -59,37 +85,44 @@ model Customer {
 model Vehicle {
   id         String     @id @default(uuid())
   regNumber  String     @unique // e.g. GJ 01 VP 8363
-  makeModel  String     // e.g. Honda Activa 6G, RE Electra 350
+  makeModel  String // e.g. Honda Activa 6G, RE Electra 350
   runningKm  Int        @default(0)
   customerId String
   customer   Customer   @relation(fields: [customerId], references: [id])
   documents  Document[]
   createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  deletedAt  DateTime? // Soft delete
 
   @@index([regNumber])
 }
 
 model Document {
-  id             String         @id @default(uuid())
-  docNumber      String         @unique // e.g. MF2-8363, MF2-EST-0908
-  type           DocumentType
-  status         DocumentStatus @default(DRAFT)
-  date           DateTime       @default(now())
-  vehicleId      String
-  vehicle        Vehicle        @relation(fields: [vehicleId], references: [id])
-  complaints     String?        // Diagnostic and complaint log
-  aiDiagnosis    Json?          // Cached predictive AI output
-  workTypeNote   String?
-  paymentMethod  PaymentMethod?
-  subtotal       Decimal        @db.Decimal(10, 2)
-  mdrSurcharge   Decimal        @default(0.00) @db.Decimal(10, 2)
-  finalTotal     Decimal        @db.Decimal(10, 2)
-  isLocked       Boolean        @default(false)
-  pdfUrl         String?        // Supabase Storage URL
-  createdById    String
-  items          LineItem[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id            String         @id @default(uuid())
+  docNumber     String         @unique // e.g. MF2-8363, MF2-EST-0908
+  type          DocumentType
+  status        DocumentStatus @default(DRAFT)
+  date          DateTime       @default(now())
+  vehicleId     String
+  vehicle       Vehicle        @relation(fields: [vehicleId], references: [id])
+  complaints    String? // Diagnostic and complaint log
+  aiDiagnosis   Json? // Cached predictive AI output
+  workTypeNote  String?
+  paymentMethod PaymentMethod?
+  subtotal      Decimal        @db.Decimal(10, 2)
+  mdrSurcharge  Decimal        @default(0.00) @db.Decimal(10, 2)
+  finalTotal    Decimal        @db.Decimal(10, 2)
+  isLocked      Boolean        @default(false)
+  pdfUrl        String? // Supabase Storage URL
+  createdById   String
+
+  // Security / Anti-Tamper
+  integrityHash String? // SHA-256 hash of document contents when locked
+
+  items     LineItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime? // Soft delete
 
   @@index([docNumber])
 }
@@ -99,7 +132,7 @@ model LineItem {
   documentId  String
   document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   sortOrder   Int      @default(0)
-  sectionName String?  // e.g. "CVT Transmission Overhaul", "Labor & Machining"
+  sectionName String? // e.g. "CVT Transmission Overhaul", "Labor & Machining"
   title       String
   description String?
   quantity    Decimal  @default(1.00) @db.Decimal(6, 2)
@@ -109,10 +142,73 @@ model LineItem {
   amount      Decimal  @db.Decimal(10, 2)
 }
 
-model ApiClient {
-  id        String   @id @default(uuid())
-  name      String   // "MotoFit Website" or "MotoFit Customer App"
-  apiKey    String   @unique
-  isActive  Boolean  @default(true)
+// Immutable Financial Ledger (Append Only)
+model Transaction {
+  id            String            @id @default(uuid())
+  reference     String            @unique // TRX-0992
+  type          TransactionType
+  date          DateTime          @default(now())
+  accountVendor String // Vendor name, Client name, or Account Name
+  amount        Decimal           @db.Decimal(12, 2)
+  balanceAfter  Decimal?          @db.Decimal(12, 2) // For double-entry ledger verification
+  status        TransactionStatus @default(PENDING)
+  category      String? // E.g., 'Utilities', 'Parts' for expenses
+  notes         String?
+
+  createdById String // User who logged it
+
+  // Security
+  integrityHash String? // Chain-linked hash for immutable verification
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // NO DELETED_AT - Transactions can never be deleted, only cancelled/reversed via a new transaction.
+
+  @@index([reference])
+  @@index([type, date])
+}
+
+// Highly Secure Immutable Audit Log
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String // E.g. "DOCUMENT_LOCKED", "USER_LOGIN_FAILED"
+  entityType String // E.g. "Document", "User"
+  entityId   String?
+  details    Json // Before/After state
+  ipAddress  String? // Network tracing
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, action])
+  @@index([entityType, entityId])
+}
+
+model CompanySettings {
+  id            String  @id @default(uuid())
+  companyName   String  @default("MotoFit")
+  idNumber      String?
+  vatNumber     String?
+  website       String?
+  email         String?
+  phone         String?
+  streetAddress String?
+  city          String?
+  state         String?
+  postalCode    String?
+  logoUrl       String?
+  currencyCode  String  @default("INR")
+
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+model ApiClient {
+  id        String    @id @default(uuid())
+  name      String // "MotoFit Website" or "MotoFit Customer App"
+  apiKey    String    @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
 }

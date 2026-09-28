@@ -1,12 +1,34 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, PieChart, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 
 export default function FinancialDashboardPage() {
+  const [revenue, setRevenue] = useState(0);
+  const [expenses, setExpenses] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/v1/transactions')
+      .then(res => res.json())
+      .then((data: any[]) => {
+        let rev = 0;
+        let exp = 0;
+        data.forEach(t => {
+          const val = parseFloat(t.amount.replace(/[^0-9.-]+/g, ""));
+          if (t.type === 'Income') rev += val;
+          if (t.type === 'Expense') exp += val;
+        });
+        setRevenue(rev);
+        setExpenses(exp);
+      })
+      .catch(console.error);
+  }, []);
+
+  const netProfit = revenue - expenses;
+
   return (
-    <div className="min-h-screen bg-[#050511] text-white p-8 font-sans relative overflow-hidden">
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#3b82f6]/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen bg-gradient-to-b from-[#1a1a2e] via-[#050511] to-black text-white p-8 font-sans relative overflow-hidden flex flex-col">
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#3b82f6]/20 rounded-full blur-[150px] pointer-events-none"></div>
 
       <div className="max-w-6xl mx-auto relative z-10">
         <Link href="/" className="inline-flex items-center text-gray-400 hover:text-white mb-8 transition-colors">
@@ -25,36 +47,39 @@ export default function FinancialDashboardPage() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-[#10b981]/10 rounded-xl">
+          <div className="bg-gradient-to-br from-white/10 to-transparent border border-t-white/30 border-l-white/20 border-b-black/50 border-r-black/50 shadow-xl rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-white/5 pointer-events-none rounded-3xl"></div>
+            <div className="flex items-center gap-4 mb-4 relative z-10">
+              <div className="p-3 bg-[#10b981]/20 border border-[#10b981]/30 rounded-xl shadow-inner">
                 <TrendingUp className="text-[#10b981]" size={24} />
               </div>
               <h3 className="text-xl font-semibold">Total Revenue</h3>
             </div>
-            <p className="text-4xl font-bold">₹0</p>
-            <p className="text-sm text-gray-400 mt-2">This Month</p>
+            <p className="text-4xl font-bold">₹{revenue.toLocaleString('en-IN')}</p>
+            <p className="text-sm text-gray-400 mt-2">All Time</p>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-[#f43f5e]/10 rounded-xl">
+          <div className="bg-gradient-to-br from-white/10 to-transparent border border-t-white/30 border-l-white/20 border-b-black/50 border-r-black/50 shadow-xl rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-white/5 pointer-events-none rounded-3xl"></div>
+            <div className="flex items-center gap-4 mb-4 relative z-10">
+              <div className="p-3 bg-[#f43f5e]/20 border border-[#f43f5e]/30 rounded-xl shadow-inner">
                 <TrendingDown className="text-[#f43f5e]" size={24} />
               </div>
               <h3 className="text-xl font-semibold">Total Expenses</h3>
             </div>
-            <p className="text-4xl font-bold">₹0</p>
-            <p className="text-sm text-gray-400 mt-2">This Month</p>
+            <p className="text-4xl font-bold">₹{expenses.toLocaleString('en-IN')}</p>
+            <p className="text-sm text-gray-400 mt-2">All Time</p>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-[#3b82f6]/10 rounded-xl">
+          <div className="bg-gradient-to-br from-white/10 to-transparent border border-t-white/30 border-l-white/20 border-b-black/50 border-r-black/50 shadow-xl rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-white/5 pointer-events-none rounded-3xl"></div>
+            <div className="flex items-center gap-4 mb-4 relative z-10">
+              <div className="p-3 bg-[#3b82f6]/20 border border-[#3b82f6]/30 rounded-xl shadow-inner">
                 <DollarSign className="text-[#3b82f6]" size={24} />
               </div>
               <h3 className="text-xl font-semibold">Net Profit</h3>
             </div>
-            <p className="text-4xl font-bold">₹0</p>
+            <p className="text-4xl font-bold">₹{netProfit.toLocaleString('en-IN')}</p>
             <p className="text-sm text-gray-400 mt-2">This Month</p>
           </div>
         </div>

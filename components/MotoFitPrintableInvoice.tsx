@@ -177,12 +177,23 @@ export const MotoFitPrintableInvoice: React.FC<PrintableDocProps> = ({ data }) =
       </table>
 
       {/* Subtotal & Total Block */}
-      <div className="flex justify-end bg-[#f8fafc] text-[8pt]">
-        <div className="w-1/2"></div>
-        <div className="w-1/2 px-2 py-1.5 flex justify-between font-bold border-b border-slate-200">
-          <span className="text-slate-800">{data.docType === "SOW_BILL" ? "Subtotal:" : "Estimated Subtotal:"}</span>
-          <span>₹ {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+      <div className="flex flex-col bg-[#f8fafc] text-[8pt]">
+        <div className="flex justify-end">
+          <div className="w-1/2"></div>
+          <div className={`w-1/2 px-2 py-1.5 flex justify-between font-bold ${!totals.isMdrApplicable ? 'border-b border-slate-200' : ''}`}>
+            <span className="text-slate-800">{data.docType === "SOW_BILL" ? "Subtotal:" : "Estimated Subtotal:"}</span>
+            <span>₹ {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+          </div>
         </div>
+        {totals.isMdrApplicable && (
+          <div className="flex justify-end">
+            <div className="w-1/2"></div>
+            <div className="w-1/2 px-2 py-1.5 flex justify-between font-bold border-b border-slate-200 text-[#f04923]">
+              <span>UPI MDR Surcharge (0.4%):</span>
+              <span>₹ {totals.mdrSurcharge.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+            </div>
+          </div>
+        )}
       </div>
       <div className="flex justify-end bg-[#0b132b] text-white text-[8.5pt]">
         <div className="w-1/2"></div>
@@ -200,11 +211,11 @@ export const MotoFitPrintableInvoice: React.FC<PrintableDocProps> = ({ data }) =
         <p className="text-emerald-900 leading-tight">
           {data.docType === "SOW_BILL" ? (
             <>
-              Scope of Work Bill generated for <strong>{data.customerName}'s {data.makeModel}</strong>. Total payable amount: <strong>₹ {totals.finalTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>. {data.workTypeNote || "Routine servicing and mechanical checks completed."} Pre-15 October 2026 invoice, standard base rate applied.
+              Scope of Work Bill generated for <strong>{data.customerName}'s {data.makeModel}</strong>. Total payable amount: <strong>₹ {totals.finalTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>. {data.workTypeNote || "Routine servicing and mechanical checks completed."} {totals.isMdrApplicable ? "Post-15 Oct 2026 MDR applied for UPI transaction." : "Standard base rate applied."}
             </>
           ) : (
             <>
-              Scope of Work Initial Estimate prepared for <strong>{data.makeModel} ({data.vehicleReg})</strong>. Current confirmed items total: <strong>₹ {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>. {data.workTypeNote || "Front & rear disc brake pads and any ancillary adjustments identified during mechanical teardown will be evaluated along the way and added to the final invoice."} Pre-15 October 2026 estimate, standard base rate applied.
+              Scope of Work Initial Estimate prepared for <strong>{data.makeModel} ({data.vehicleReg})</strong>. Current confirmed items total: <strong>₹ {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>. {data.workTypeNote || "Front & rear disc brake pads and any ancillary adjustments identified during mechanical teardown will be evaluated along the way and added to the final invoice."} {totals.isMdrApplicable ? "Post-15 Oct 2026 MDR applied for UPI transaction." : "Standard base rate applied."}
             </>
           )}
         </p>

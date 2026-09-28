@@ -60,7 +60,7 @@ export function calculateInvoiceTotals(input: BillingCalculationInput): BillingB
   if (invoiceDate >= mdrEffectiveDate) {
     if (input.paymentMethod === "UPI" && subtotal > 2000.0) {
       isMdrApplicable = true;
-      mdrRate = 0.011; // 1.1% UPI Merchant Interchange Fee
+      mdrRate = 0.004; // 0.4% UPI Merchant Interchange Fee
       mdrSurcharge = Math.round(subtotal * mdrRate * 100) / 100;
     }
   }

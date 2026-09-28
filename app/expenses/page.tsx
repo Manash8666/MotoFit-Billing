@@ -1,19 +1,80 @@
 'use client';
-import React, { useState } from 'react';
-import { Search, Plus, Home, Filter, MoreHorizontal } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Plus, Home, Filter, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+
+interface ExpenseTransaction {
+  id: string;
+  vendor: string;
+  date: string;
+  category: string;
+  amount: string;
+  status: string;
+}
 
 export default function ExpensesPage() {
   const [search, setSearch] = useState('');
+  const [expenses, setExpenses] = useState<ExpenseTransaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newExpense, setNewExpense] = useState({ vendor: '', category: '', amount: '' });
 
-  const expenses = [
-    { id: 'EXP-001', vendor: 'Nigam Nagar Hardware', date: '2023-10-10', category: 'Supplies', amount: '₹1,200', status: 'Logged' },
-    { id: 'EXP-002', vendor: 'City Power Corp', date: '2023-10-15', category: 'Utilities', amount: '₹4,500', status: 'Billed' },
-    { id: 'EXP-003', vendor: 'Tony Mechanic', date: '2023-10-22', category: 'Contractor', amount: '₹8,000', status: 'Logged' },
-  ];
+  useEffect(() => {
+    fetch('/api/v1/transactions')
+      .then(res => res.json())
+      .then((data: any[]) => {
+        const mapped = data.filter(t => t.type === 'Expense').map(t => ({
+          id: t.id,
+          vendor: t.account,
+          date: t.date,
+          category: t.reference,
+          amount: t.amount,
+          status: 'Logged'
+        }));
+        setExpenses(mapped);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load expenses", err);
+        setIsLoading(false);
+      });
+  }, []);
+
+  const filteredExpenses = expenses.filter(e => 
+    e.vendor.toLowerCase().includes(search.toLowerCase()) || 
+    e.category.toLowerCase().includes(search.toLowerCase()) ||
+    e.id.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleAddExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/v1/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'Expense', reference: newExpense.category, account: newExpense.vendor, amount: newExpense.amount })
+      });
+      if (res.ok) {
+        const data = await fetch('/api/v1/transactions').then(r => r.json());
+        const mapped = data.filter((t: any) => t.type === 'Expense').map((t: any) => ({
+          id: t.id,
+          vendor: t.account,
+          date: t.date,
+          category: t.reference,
+          amount: t.amount,
+          status: 'Logged'
+        }));
+        setExpenses(mapped);
+        setNewExpense({ vendor: '', category: '', amount: '' });
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      alert("Failed to save expense");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#111111] text-gray-200 font-sans flex flex-col">
+    <div className="min-h-screen bg-[#111111] text-gray-200 font-sans flex flex-col relative">
       {/* Top Header */}
       <header className="flex items-center justify-between p-4 border-b border-white/10 bg-[#161616]">
         <div className="flex items-center gap-4">
@@ -36,7 +97,7 @@ export default function ExpensesPage() {
             <Filter size={16} />
             Filter
           </button>
-          <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
+          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
             <Plus size={16} />
             New Expense
           </button>
@@ -51,6 +112,35 @@ export default function ExpensesPage() {
         <span>/</span>
         <span className="text-gray-200">Expenses</span>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-md p-6 relative">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
+              <X size={20} />
+            </button>
+            <h2 className="text-xl font-medium mb-6 text-white">New Expense</h2>
+            <form onSubmit={handleAddExpense} className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Vendor Name</label>
+                <input required type="text" value={newExpense.vendor} onChange={e => setNewExpense({...newExpense, vendor: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Category</label>
+                <input required type="text" value={newExpense.category} onChange={e => setNewExpense({...newExpense, category: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Amount (₹)</label>
+                <input required type="number" value={newExpense.amount} onChange={e => setNewExpense({...newExpense, amount: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2 rounded-md border border-white/10 text-white text-sm hover:bg-white/5 transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 py-2 rounded-md bg-white text-black text-sm font-medium hover:bg-gray-200 transition-colors">Save Expense</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 p-6 overflow-y-auto">
@@ -68,7 +158,7 @@ export default function ExpensesPage() {
               </tr>
             </thead>
             <tbody>
-              {expenses.map((expense, i) => (
+              {filteredExpenses.map((expense, i) => (
                 <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                   <td className="p-4 text-sm font-medium text-blue-400 cursor-pointer hover:underline">{expense.id}</td>
                   <td className="p-4 text-sm text-white">{expense.vendor}</td>
@@ -93,17 +183,17 @@ export default function ExpensesPage() {
             </tbody>
           </table>
           
-          {expenses.length === 0 && (
+          {filteredExpenses.length === 0 && (
             <div className="p-12 text-center text-gray-500">
               <p>No expenses found.</p>
             </div>
           )}
           
           <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
-            <div>Showing 1 to {expenses.length} of {expenses.length} entries</div>
+            <div>Showing {filteredExpenses.length > 0 ? 1 : 0} to {filteredExpenses.length} of {filteredExpenses.length} entries</div>
             <div className="flex gap-2">
-              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50">Previous</button>
-              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50">Next</button>
+              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50" disabled>Previous</button>
+              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50" disabled>Next</button>
             </div>
           </div>
         </div>

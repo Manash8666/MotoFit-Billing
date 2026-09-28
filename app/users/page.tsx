@@ -18,39 +18,38 @@ export default function UsersPage() {
   const [formData, setFormData] = useState({ name: "", phone: "", pinHash: "", role: "SENIOR_MECHANIC" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchUsers = async () => {
-    try {
-      const res = await fetch("/api/v1/users");
-      const data = await res.json();
-      if (data.users) setUsers(data.users);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchUsers();
+    fetch('/api/v1/users')
+      .then(res => res.json())
+      .then(data => {
+        if (data.users) {
+          setUsers(data.users);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load users", err);
+        setLoading(false);
+      });
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
     try {
-      const res = await fetch("/api/v1/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const res = await fetch('/api/v1/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, pinHash: formData.pinHash || '0000' })
       });
-      const data = await res.json();
-      if (!res.ok) alert("Error: " + data.error);
-      else {
+      if (res.ok) {
+        const data = await fetch('/api/v1/users').then(r => r.json());
+        if (data.users) setUsers(data.users);
         setFormData({ name: "", phone: "", pinHash: "", role: "SENIOR_MECHANIC" });
-        fetchUsers();
       }
-    } catch (err: any) {
-      alert("Error: " + err.message);
+    } catch (err) {
+      alert("Failed to save user");
     } finally {
       setIsSubmitting(false);
     }

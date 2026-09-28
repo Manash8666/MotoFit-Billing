@@ -90,22 +90,24 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const handleSave = async () => {
     setIsSaving(true);
     setSaveSuccess(false);
+    
     try {
-      const response = await fetch("/api/v1/documents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(getInvoiceData()),
+      const response = await fetch('/api/v1/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(getInvoiceData())
       });
       
-      const data = await response.json();
       if (!response.ok) {
-        alert("Error saving: " + data.error);
-      } else {
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
+        const errData = await response.json();
+        throw new Error(errData.error || 'Failed to save document');
       }
-    } catch (err: any) {
-      alert("Network error: " + err.message);
+      
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error("Error saving document:", error);
+      alert("Failed to save to database: " + (error as Error).message);
     } finally {
       setIsSaving(false);
     }
@@ -207,6 +209,18 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
               value={formData.vehicleReg} 
               onChange={e => setFormData({...formData, vehicleReg: e.target.value})}
             />
+          </div>
+          <div className="md:col-span-1">
+            <label className="block text-gray-400 mb-1">Payment Method</label>
+            <select
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white"
+              value={formData.paymentMethod}
+              onChange={e => setFormData({...formData, paymentMethod: e.target.value as any})}
+            >
+              <option value="CASH">Cash</option>
+              <option value="UPI">UPI</option>
+              <option value="BANK_TRANSFER">Bank Transfer</option>
+            </select>
           </div>
           <div className="md:col-span-2">
             <label className="block text-gray-400 mb-1">Bottom Billing Notice / Remark</label>

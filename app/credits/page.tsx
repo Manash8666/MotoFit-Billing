@@ -1,19 +1,79 @@
 'use client';
-import React, { useState } from 'react';
-import { Search, Plus, Home, Filter, MoreHorizontal, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Plus, Home, Filter, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+
+interface CreditTransaction {
+  id: string;
+  client: string;
+  date: string;
+  amount: string;
+  balance: string;
+  status: string;
+}
 
 export default function CreditsPage() {
   const [search, setSearch] = useState('');
+  const [credits, setCredits] = useState<CreditTransaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newCredit, setNewCredit] = useState({ client: '', amount: '' });
 
-  const credits = [
-    { id: 'CR-001', client: 'Arjun Mehta', date: '2023-10-12', amount: '₹1,500', balance: '₹1,500', status: 'Available' },
-    { id: 'CR-002', client: 'Priya Sharma', date: '2023-10-14', amount: '₹500', balance: '₹0', status: 'Applied' },
-    { id: 'CR-003', client: 'Rahul Desai', date: '2023-10-20', amount: '₹2,000', balance: '₹1,200', status: 'Partial' },
-  ];
+  useEffect(() => {
+    fetch('/api/v1/transactions')
+      .then(res => res.json())
+      .then((data: any[]) => {
+        const mapped = data.filter(t => t.type === 'Income').map(t => ({
+          id: t.id,
+          client: t.account,
+          date: t.date,
+          amount: t.amount,
+          balance: t.amount,
+          status: 'Available'
+        }));
+        setCredits(mapped);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load credits", err);
+        setIsLoading(false);
+      });
+  }, []);
+
+  const filteredCredits = credits.filter(c => 
+    c.client.toLowerCase().includes(search.toLowerCase()) || 
+    c.id.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleAddCredit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/v1/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'Income', reference: 'CREDIT', account: newCredit.client, amount: newCredit.amount })
+      });
+      if (res.ok) {
+        const data = await fetch('/api/v1/transactions').then(r => r.json());
+        const mapped = data.filter((t: any) => t.type === 'Income').map((t: any) => ({
+          id: t.id,
+          client: t.account,
+          date: t.date,
+          amount: t.amount,
+          balance: t.amount,
+          status: 'Available'
+        }));
+        setCredits(mapped);
+        setNewCredit({ client: '', amount: '' });
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      alert("Failed to save credit");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#111111] text-gray-200 font-sans flex flex-col">
+    <div className="min-h-screen bg-[#111111] text-gray-200 font-sans flex flex-col relative">
       {/* Top Header */}
       <header className="flex items-center justify-between p-4 border-b border-white/10 bg-[#161616]">
         <div className="flex items-center gap-4">
@@ -36,7 +96,7 @@ export default function CreditsPage() {
             <Filter size={16} />
             Filter
           </button>
-          <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
+          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
             <Plus size={16} />
             New Credit
           </button>
@@ -51,6 +111,31 @@ export default function CreditsPage() {
         <span>/</span>
         <span className="text-gray-200">Credits</span>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-md p-6 relative">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
+              <X size={20} />
+            </button>
+            <h2 className="text-xl font-medium mb-6 text-white">New Credit</h2>
+            <form onSubmit={handleAddCredit} className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Client Name</label>
+                <input required type="text" value={newCredit.client} onChange={e => setNewCredit({...newCredit, client: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Amount (₹)</label>
+                <input required type="number" value={newCredit.amount} onChange={e => setNewCredit({...newCredit, amount: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2 rounded-md border border-white/10 text-white text-sm hover:bg-white/5 transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 py-2 rounded-md bg-white text-black text-sm font-medium hover:bg-gray-200 transition-colors">Save Credit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 p-6 overflow-y-auto">
@@ -68,7 +153,7 @@ export default function CreditsPage() {
               </tr>
             </thead>
             <tbody>
-              {credits.map((credit, i) => (
+              {filteredCredits.map((credit, i) => (
                 <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                   <td className="p-4 text-sm font-medium text-blue-400 cursor-pointer hover:underline">{credit.id}</td>
                   <td className="p-4 text-sm text-white">{credit.client}</td>
@@ -94,17 +179,17 @@ export default function CreditsPage() {
             </tbody>
           </table>
           
-          {credits.length === 0 && (
+          {filteredCredits.length === 0 && (
             <div className="p-12 text-center text-gray-500">
               <p>No credit notes found.</p>
             </div>
           )}
           
           <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
-            <div>Showing 1 to {credits.length} of {credits.length} entries</div>
+            <div>Showing {filteredCredits.length > 0 ? 1 : 0} to {filteredCredits.length} of {filteredCredits.length} entries</div>
             <div className="flex gap-2">
-              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50">Previous</button>
-              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50">Next</button>
+              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50" disabled>Previous</button>
+              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50" disabled>Next</button>
             </div>
           </div>
         </div>

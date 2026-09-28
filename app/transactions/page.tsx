@@ -1,19 +1,87 @@
 'use client';
-import React, { useState } from 'react';
-import { Search, Plus, Home, Filter, MoreHorizontal, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Plus, Home, Filter, MoreHorizontal, ArrowUpRight, ArrowDownRight, X, Download, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+
+interface Transaction {
+  id: string;
+  type: string;
+  reference: string;
+  date: string;
+  account: string;
+  amount: string;
+  status: string;
+}
 
 export default function TransactionsPage() {
   const [search, setSearch] = useState('');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newTransaction, setNewTransaction] = useState({ type: 'Income', reference: '', account: '', amount: '' });
 
-  const transactions = [
-    { id: 'TRX-0992', type: 'Income', reference: 'INV-MF-209', date: '2023-10-25', account: 'HDFC Bank', amount: '₹14,500', status: 'Completed' },
-    { id: 'TRX-0993', type: 'Expense', reference: 'EXP-001', date: '2023-10-26', account: 'Cash', amount: '₹1,200', status: 'Completed' },
-    { id: 'TRX-0994', type: 'Income', reference: 'INV-MF-210', date: '2023-10-27', account: 'Stripe', amount: '₹8,400', status: 'Pending' },
-  ];
+  useEffect(() => {
+    fetch('/api/v1/transactions')
+      .then(res => res.json())
+      .then(data => {
+        setTransactions(data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load transactions", err);
+        setIsLoading(false);
+      });
+  }, []);
+
+  const filteredTransactions = transactions.filter(t => 
+    t.reference.toLowerCase().includes(search.toLowerCase()) || 
+    t.id.toLowerCase().includes(search.toLowerCase()) ||
+    t.account.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleAddTransaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/v1/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTransaction)
+      });
+      
+      if (res.ok) {
+        // Refresh the list
+        const latest = await fetch('/api/v1/transactions').then(r => r.json());
+        setTransactions(latest);
+        setNewTransaction({ type: 'Income', reference: '', account: '', amount: '' });
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      console.error("Failed to create transaction", err);
+      alert("Failed to save transaction!");
+    }
+  };
+
+  const handleExportAuditReport = () => {
+    const headers = ['Transaction ID', 'Type', 'Reference', 'Date', 'Account', 'Amount', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredTransactions.map(t => 
+        `"${t.id}","${t.type}","${t.reference}","${t.date}","${t.account}","${t.amount.replace('₹', '')}","${t.status}"`
+      )
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `MotoFit_CA_Audit_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
-    <div className="min-h-screen bg-[#111111] text-gray-200 font-sans flex flex-col">
+    <div className="min-h-screen bg-[#111111] text-gray-200 font-sans flex flex-col relative">
       {/* Top Header */}
       <header className="flex items-center justify-between p-4 border-b border-white/10 bg-[#161616]">
         <div className="flex items-center gap-4">
@@ -32,11 +100,15 @@ export default function TransactionsPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button onClick={handleExportAuditReport} className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium border border-blue-500/50 text-blue-400 rounded-md hover:bg-blue-500/10 transition-colors">
+            <Download size={16} />
+            Export CA Report
+          </button>
           <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium border border-white/10 rounded-md hover:bg-white/5 transition-colors">
             <Filter size={16} />
             Filter
           </button>
-          <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
+          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
             <Plus size={16} />
             New Transaction
           </button>
@@ -51,6 +123,42 @@ export default function TransactionsPage() {
         <span>/</span>
         <span className="text-gray-200">Transactions</span>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-md p-6 relative">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
+              <X size={20} />
+            </button>
+            <h2 className="text-xl font-medium mb-6 text-white">New Transaction</h2>
+            <form onSubmit={handleAddTransaction} className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Type</label>
+                <select value={newTransaction.type} onChange={e => setNewTransaction({...newTransaction, type: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white">
+                  <option value="Income">Income</option>
+                  <option value="Expense">Expense</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Reference (e.g. INV-123)</label>
+                <input required type="text" value={newTransaction.reference} onChange={e => setNewTransaction({...newTransaction, reference: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Account</label>
+                <input required type="text" value={newTransaction.account} onChange={e => setNewTransaction({...newTransaction, account: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Amount (₹)</label>
+                <input required type="number" value={newTransaction.amount} onChange={e => setNewTransaction({...newTransaction, amount: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2 rounded-md border border-white/10 text-white text-sm hover:bg-white/5 transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 py-2 rounded-md bg-white text-black text-sm font-medium hover:bg-gray-200 transition-colors">Save Transaction</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 p-6 overflow-y-auto">
@@ -69,7 +177,7 @@ export default function TransactionsPage() {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((trx, i) => (
+              {filteredTransactions.map((trx, i) => (
                 <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                   <td className="p-4 text-sm font-medium text-blue-400 cursor-pointer hover:underline">{trx.id}</td>
                   <td className="p-4 text-sm flex items-center gap-2">
@@ -102,17 +210,17 @@ export default function TransactionsPage() {
             </tbody>
           </table>
           
-          {transactions.length === 0 && (
+          {filteredTransactions.length === 0 && (
             <div className="p-12 text-center text-gray-500">
               <p>No transactions found.</p>
             </div>
           )}
           
           <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
-            <div>Showing 1 to {transactions.length} of {transactions.length} entries</div>
+            <div>Showing {filteredTransactions.length > 0 ? 1 : 0} to {filteredTransactions.length} of {filteredTransactions.length} entries</div>
             <div className="flex gap-2">
-              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50">Previous</button>
-              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50">Next</button>
+              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50" disabled>Previous</button>
+              <button className="px-3 py-1 border border-white/10 rounded-md hover:bg-white/5 disabled:opacity-50" disabled>Next</button>
             </div>
           </div>
         </div>
