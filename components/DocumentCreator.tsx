@@ -12,6 +12,8 @@ interface DocumentCreatorProps {
 
 export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const [isPreview, setIsPreview] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [formData, setFormData] = useState({
     docNumber: docType === "SOW_BILL" ? "MF2-PASS-01" : "MF2-EST-01",
     date: new Date().toISOString().split("T")[0],
@@ -85,6 +87,30 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
     window.print();
   };
 
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveSuccess(false);
+    try {
+      const response = await fetch("/api/v1/documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(getInvoiceData()),
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        alert("Error saving: " + data.error);
+      } else {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
+    } catch (err: any) {
+      alert("Network error: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isPreview) {
     return (
       <div className="flex flex-col items-center">
@@ -95,12 +121,21 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
           >
             <Edit2 size={16} /> Edit Details
           </button>
-          <button 
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-[#f04923] text-white rounded hover:bg-red-600 transition shadow-lg shadow-red-500/30"
-          >
-            <Download size={16} /> Print / Save PDF
-          </button>
+          <div className="flex gap-4">
+            <button 
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`flex items-center gap-2 px-4 py-2 text-white rounded transition ${saveSuccess ? 'bg-green-500' : 'bg-blue-600 hover:bg-blue-500'} ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {saveSuccess ? "Saved!" : isSaving ? "Saving..." : "Save to Database"}
+            </button>
+            <button 
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-4 py-2 bg-[#f04923] text-white rounded hover:bg-red-600 transition shadow-lg shadow-red-500/30"
+            >
+              <Download size={16} /> Print / Save PDF
+            </button>
+          </div>
         </div>
         <div className="shadow-2xl overflow-hidden print:shadow-none print:w-full">
           <MotoFitPrintableInvoice data={getInvoiceData()} />
