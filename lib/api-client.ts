@@ -1,6 +1,6 @@
 export const apiClient = {
   async fetch(url: string, options: RequestInit = {}) {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('motofit_session') : null;
     
     const headers = new Headers(options.headers || {});
     if (token) {
@@ -15,8 +15,8 @@ export const apiClient = {
     if (response.status === 401) {
       // Auto-logout if unauthorized
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('motofit_session');
+        localStorage.removeItem('motofit_user');
         window.location.href = '/login';
       }
     }
