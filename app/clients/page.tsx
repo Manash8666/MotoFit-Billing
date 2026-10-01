@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Plus, Search, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Users, Plus, Search, X, Loader2, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface Client {
@@ -138,6 +138,7 @@ export default function ClientsPage() {
                     <th className="p-4 text-gray-400 font-medium">Phone</th>
                     <th className="p-4 text-gray-400 font-medium">Vehicle</th>
                     <th className="p-4 text-gray-400 font-medium text-right">Last Visit</th>
+                    <th className="p-4 text-gray-400 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -147,6 +148,16 @@ export default function ClientsPage() {
                       <td className="p-4 text-gray-400">{client.phone}</td>
                       <td className="p-4 text-gray-400">{client.vehicle}</td>
                       <td className="p-4 text-right font-medium text-[#10b981]">{client.lastVisit}</td>
+                      <td className="p-4 text-right">
+                        <a 
+                          href={`https://wa.me/${client.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${client.name}, your vehicle (${client.vehicle}) servicing is complete and ready for pickup at MotoFit!`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#25D366] text-white text-xs rounded hover:bg-[#20b858] transition"
+                        >
+                          <MessageCircle size={14} /> Reminder
+                        </a>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

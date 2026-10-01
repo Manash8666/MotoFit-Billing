@@ -315,7 +315,14 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="e.g. GJ 01 VP 8363"
               value={formData.vehicleReg} 
-              onChange={e => setFormData({...formData, vehicleReg: e.target.value})}
+              onChange={e => {
+                // Auto format: gj01vp8363 -> GJ 01 VP 8363 (rough approximation for Indian plates)
+                let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                if (val.length > 2) val = val.slice(0, 2) + ' ' + val.slice(2);
+                if (val.length > 5) val = val.slice(0, 5) + ' ' + val.slice(5);
+                if (val.length > 8) val = val.slice(0, 8) + ' ' + val.slice(8, 12);
+                setFormData({...formData, vehicleReg: val});
+              }}
             />
           </div>
           <div>
