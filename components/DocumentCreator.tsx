@@ -52,7 +52,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
     const params = new URLSearchParams(window.location.search);
     const duplicateId = params.get('duplicate');
     if (duplicateId) {
-      apiClient.fetch('/api/v1/documents/${duplicateId}`)
+      apiClient.fetch(`/api/v1/documents/${duplicateId}`)
         .then(res => res.json())
         .then(data => {
           if (data && !data.error) {

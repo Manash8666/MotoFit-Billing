@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const allUsers = await prisma.user.findMany({
+      take: 100,
       orderBy: { createdAt: "desc" }
     });
     // Filter active users in JS to avoid stale local TS type issues

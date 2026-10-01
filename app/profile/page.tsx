@@ -43,7 +43,7 @@ export default function ProfilePage() {
     }
 
     try {
-      const res = await apiClient.fetch('/api/v1/profile", {
+      const res = await apiClient.fetch('/api/v1/profile', {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

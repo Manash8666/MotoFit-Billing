@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const parts = await prisma.part.findMany({
+      take: 100, // Basic pagination cap
       orderBy: { createdAt: "desc" }
     });
     return NextResponse.json(parts);

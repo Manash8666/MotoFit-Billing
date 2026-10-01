@@ -22,7 +22,15 @@ export async function middleware(req: NextRequest) {
 
     try {
       const secret = new TextEncoder().encode(JWT_SECRET);
-      await jwtVerify(token, secret);
+      const { payload } = await jwtVerify(token, secret);
+      
+      // Role Based Access Control (RBAC)
+      if (req.nextUrl.pathname.startsWith('/api/v1/settings') || req.nextUrl.pathname.startsWith('/api/v1/users')) {
+        if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'OWNER') {
+          return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
+        }
+      }
+
       return NextResponse.next();
     } catch (error) {
       console.error('JWT Verification failed:', error);
