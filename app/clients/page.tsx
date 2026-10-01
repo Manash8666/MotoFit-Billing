@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Users, Plus, Search, X, Loader2, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -19,7 +20,7 @@ export default function ClientsPage() {
   const [newClient, setNewClient] = useState({ name: '', phone: '', vehicle: '' });
 
   useEffect(() => {
-    fetch('/api/v1/customers')
+    apiClient.fetch('/api/v1/customers')
       .then(res => res.json())
       .then(data => {
         setClients(data);
@@ -40,7 +41,7 @@ export default function ClientsPage() {
   const handleAddClient = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/v1/customers', {
+      const res = await apiClient.fetch('/api/v1/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newClient)
@@ -48,7 +49,7 @@ export default function ClientsPage() {
       
       if (res.ok) {
         // Refresh the list
-        const latest = await fetch('/api/v1/customers').then(r => r.json());
+        const latest = await apiClient.fetch('/api/v1/customers').then(r => r.json());
         setClients(latest);
         setNewClient({ name: '', phone: '', vehicle: '' });
         setIsModalOpen(false);

@@ -1,4 +1,5 @@
 "use client";
+import { apiClient } from '@/lib/api-client';
 
 import React, { useState } from "react";
 import { MotoFitPrintableInvoice, PrintableDocProps } from "@/components/MotoFitPrintableInvoice";
@@ -33,14 +34,14 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const [activePartDropdown, setActivePartDropdown] = useState<string | null>(null);
 
   React.useEffect(() => {
-    fetch('/api/v1/customers')
+    apiClient.fetch('/api/v1/customers')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setCustomers(data);
       })
       .catch(console.error);
       
-    fetch('/api/v1/parts')
+    apiClient.fetch('/api/v1/parts')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setParts(data);
@@ -51,7 +52,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
     const params = new URLSearchParams(window.location.search);
     const duplicateId = params.get('duplicate');
     if (duplicateId) {
-      fetch(`/api/v1/documents/${duplicateId}`)
+      apiClient.fetch('/api/v1/documents/${duplicateId}`)
         .then(res => res.json())
         .then(data => {
           if (data && !data.error) {
@@ -194,7 +195,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
     setSaveSuccess(false);
     
     try {
-      const response = await fetch('/api/v1/documents', {
+      const response = await apiClient.fetch('/api/v1/documents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(getInvoiceData())
@@ -362,7 +363,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
           <div>
             <label className="block text-gray-400 mb-1">Odometer (KM)</label>
             <input 
-              type="number" 
+              type="number" inputMode="decimal" pattern="[0-9]*" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="e.g. 12500"
               value={formData.runningKm} 
@@ -477,7 +478,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Qty</label>
                   <input 
-                    type="number" 
+                    type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     value={item.quantity} 
                     onChange={e => handleItemChange(item.id, "quantity", e.target.value)}
@@ -495,7 +496,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Rate (₹)</label>
                   <input 
-                    type="number" 
+                    type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     value={item.rate} 
                     onChange={e => handleItemChange(item.id, "rate", e.target.value)}

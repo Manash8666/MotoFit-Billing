@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Home, Filter, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -20,7 +21,7 @@ export default function DebitsPage() {
   const [newDebit, setNewDebit] = useState({ vendor: '', amount: '' });
 
   useEffect(() => {
-    fetch('/api/v1/transactions')
+    apiClient.fetch('/api/v1/transactions')
       .then(res => res.json())
       .then((data: any[]) => {
         const mapped = data.filter(t => t.type === 'Expense').map(t => ({
@@ -48,13 +49,13 @@ export default function DebitsPage() {
   const handleAddDebit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/v1/transactions', {
+      const res = await apiClient.fetch('/api/v1/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'Expense', reference: 'DEBIT', account: newDebit.vendor, amount: newDebit.amount })
       });
       if (res.ok) {
-        const data = await fetch('/api/v1/transactions').then(r => r.json());
+        const data = await apiClient.fetch('/api/v1/transactions').then(r => r.json());
         const mapped = data.filter((t: any) => t.type === 'Expense').map((t: any) => ({
           id: t.id,
           vendor: t.account,

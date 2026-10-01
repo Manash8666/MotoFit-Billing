@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState } from 'react';
 import { Search, Plus, Home, ChevronDown, Check, X, Menu } from 'lucide-react';
 import Link from 'next/link';
@@ -24,7 +25,7 @@ export default function SettingsPage() {
     }
     setIsResetting(true);
     try {
-      const res = await fetch('/api/v1/settings/reset', {
+      const res = await apiClient.fetch('/api/v1/settings/reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ confirmation: resetConfirmation })

@@ -1,4 +1,5 @@
 "use client";
+import { apiClient } from '@/lib/api-client';
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -42,7 +43,7 @@ export default function ProfilePage() {
     }
 
     try {
-      const res = await fetch("/api/v1/profile", {
+      const res = await apiClient.fetch('/api/v1/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

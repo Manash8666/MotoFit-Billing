@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Home, Filter, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -20,7 +21,7 @@ export default function CreditsPage() {
   const [newCredit, setNewCredit] = useState({ client: '', amount: '' });
 
   useEffect(() => {
-    fetch('/api/v1/transactions')
+    apiClient.fetch('/api/v1/transactions')
       .then(res => res.json())
       .then((data: any[]) => {
         const mapped = data.filter(t => t.type === 'Income').map(t => ({
@@ -48,13 +49,13 @@ export default function CreditsPage() {
   const handleAddCredit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/v1/transactions', {
+      const res = await apiClient.fetch('/api/v1/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'Income', reference: 'CREDIT', account: newCredit.client, amount: newCredit.amount })
       });
       if (res.ok) {
-        const data = await fetch('/api/v1/transactions').then(r => r.json());
+        const data = await apiClient.fetch('/api/v1/transactions').then(r => r.json());
         const mapped = data.filter((t: any) => t.type === 'Income').map((t: any) => ({
           id: t.id,
           client: t.account,

@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Home, Filter, MoreHorizontal, ArrowUpRight, ArrowDownRight, X, Download, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -23,7 +24,7 @@ export default function TransactionsPage() {
   const [newTransaction, setNewTransaction] = useState({ type: 'Income', reference: '', account: '', amount: '' });
 
   useEffect(() => {
-    fetch('/api/v1/transactions')
+    apiClient.fetch('/api/v1/transactions')
       .then(res => res.json())
       .then(data => {
         setTransactions(data);
@@ -44,7 +45,7 @@ export default function TransactionsPage() {
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/v1/transactions', {
+      const res = await apiClient.fetch('/api/v1/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTransaction)
@@ -52,7 +53,7 @@ export default function TransactionsPage() {
       
       if (res.ok) {
         // Refresh the list
-        const latest = await fetch('/api/v1/transactions').then(r => r.json());
+        const latest = await apiClient.fetch('/api/v1/transactions').then(r => r.json());
         setTransactions(latest);
         setNewTransaction({ type: 'Income', reference: '', account: '', amount: '' });
         setIsModalOpen(false);

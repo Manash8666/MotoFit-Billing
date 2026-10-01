@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const transactions = await prisma.transaction.findMany({
+      take: 100, // Basic pagination cap
       orderBy: { date: 'desc' }
     });
 

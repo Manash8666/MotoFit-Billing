@@ -1,4 +1,5 @@
 "use client";
+import { apiClient } from '@/lib/api-client';
 
 import Link from "next/link";
 import { ArrowLeft, UserPlus, Shield, Phone, Trash2 } from "lucide-react";
@@ -21,7 +22,7 @@ export default function UsersPage() {
   const [success, setSuccess] = useState("");
 
   const loadUsers = () => {
-    fetch('/api/v1/users')
+    apiClient.fetch('/api/v1/users')
       .then(res => res.json())
       .then(data => {
         if (data.users) setUsers(data.users);
@@ -42,7 +43,7 @@ export default function UsersPage() {
     setSuccess("");
 
     try {
-      const res = await fetch('/api/v1/users', {
+      const res = await apiClient.fetch('/api/v1/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, pinHash: formData.pinHash || '0000' })
@@ -67,7 +68,7 @@ export default function UsersPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Remove "${name}" from staff? This cannot be undone.`)) return;
     try {
-      const res = await fetch('/api/v1/users', {
+      const res = await apiClient.fetch('/api/v1/users', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id })
@@ -171,7 +172,7 @@ export default function UsersPage() {
                           onClick={async () => {
                             if (!confirm(`Reset PIN for "${user.name}" to 0000?`)) return;
                             try {
-                              const res = await fetch('/api/v1/users', {
+                              const res = await apiClient.fetch('/api/v1/users', {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ id: user.id, action: 'RESET_PIN' })

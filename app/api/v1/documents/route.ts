@@ -6,6 +6,7 @@ import crypto from "crypto";
 export async function GET() {
   try {
     const documents = await prisma.document.findMany({
+      take: 100, // Basic pagination cap to prevent memory crashes
       orderBy: { createdAt: 'desc' },
       include: {
         vehicle: {

@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
 import { FileText, Search, Copy, Download, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -9,7 +10,7 @@ export default function InvoicesPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    fetch('/api/v1/documents')
+    apiClient.fetch('/api/v1/documents')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setDocuments(data);

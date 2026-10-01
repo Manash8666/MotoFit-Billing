@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const customers = await prisma.customer.findMany({
+      take: 100, // Basic pagination cap to prevent N+1 crashes
       where: { deletedAt: null },
       include: {
         vehicles: true

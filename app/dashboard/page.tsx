@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, PieChart, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import Link from 'next/link';
@@ -8,7 +9,7 @@ export default function FinancialDashboardPage() {
   const [expenses, setExpenses] = useState(0);
 
   useEffect(() => {
-    fetch('/api/v1/transactions')
+    apiClient.fetch('/api/v1/transactions')
       .then(res => res.json())
       .then((data: any[]) => {
         if (!Array.isArray(data)) return;

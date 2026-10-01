@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState } from 'react';
 import { Zap, Activity, TrendingUp, ShieldAlert, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -21,7 +22,7 @@ export default function AISalesAnalysis() {
     setResult(null);
 
     try {
-      const res = await fetch('/api/sales/predict', {
+      const res = await apiClient.fetch('/api/sales/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

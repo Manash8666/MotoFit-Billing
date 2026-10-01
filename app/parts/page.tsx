@@ -1,4 +1,5 @@
 'use client';
+import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Settings, Plus, Search, Box, X } from 'lucide-react';
 import Link from 'next/link';
@@ -11,7 +12,7 @@ export default function PartsPage() {
   const [newItem, setNewItem] = useState({ name: '', category: '', price: '' });
 
   useEffect(() => {
-    fetch('/api/v1/parts')
+    apiClient.fetch('/api/v1/parts')
       .then(res => res.json())
       .then(data => {
         setParts(data);
@@ -29,7 +30,7 @@ export default function PartsPage() {
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/v1/parts', {
+      const res = await apiClient.fetch('/api/v1/parts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -40,7 +41,7 @@ export default function PartsPage() {
         })
       });
       if (res.ok) {
-        const latest = await fetch('/api/v1/parts').then(r => r.json());
+        const latest = await apiClient.fetch('/api/v1/parts').then(r => r.json());
         setParts(latest);
         setNewItem({ name: '', category: '', price: '' });
         setIsModalOpen(false);

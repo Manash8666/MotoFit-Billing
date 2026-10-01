@@ -80,6 +80,7 @@ model Customer {
   deletedAt DateTime? // Soft delete
 
   @@index([phone])
+  @@index([createdAt])
 }
 
 model Vehicle {
@@ -95,6 +96,7 @@ model Vehicle {
   deletedAt  DateTime? // Soft delete
 
   @@index([regNumber])
+  @@index([createdAt])
 }
 
 model Document {
@@ -125,6 +127,8 @@ model Document {
   deletedAt DateTime? // Soft delete
 
   @@index([docNumber])
+  @@index([createdAt])
+  @@index([date])
 }
 
 model LineItem {
@@ -140,6 +144,8 @@ model LineItem {
   rate        Decimal  @db.Decimal(10, 2)
   mrpDiscount Decimal? @default(0.00) @db.Decimal(5, 2) // e.g. 10.00 (%)
   amount      Decimal  @db.Decimal(10, 2)
+
+  @@index([documentId])
 }
 
 // Immutable Financial Ledger (Append Only)
@@ -154,6 +160,7 @@ model Transaction {
   status        TransactionStatus @default(PENDING)
   category      String? // E.g., 'Utilities', 'Parts' for expenses
   notes         String?
+  documentId    String?           @unique // Link to Bill
 
   createdById String // User who logged it
 
@@ -166,6 +173,7 @@ model Transaction {
 
   @@index([reference])
   @@index([type, date])
+  @@index([createdAt])
 }
 
 // Highly Secure Immutable Audit Log
