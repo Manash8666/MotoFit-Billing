@@ -5,7 +5,7 @@ import { jwtVerify } from 'jose';
 // We must use jose for edge middleware because jsonwebtoken uses node crypto which is unavailable in Edge runtime.
 const JWT_SECRET = process.env.JWT_SECRET || "default_unsafe_secret_for_dev_only";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   // Only protect API routes under /api/v1/ (exclude auth routes)
   if (req.nextUrl.pathname.startsWith('/api/v1/') && !req.nextUrl.pathname.startsWith('/api/auth/')) {
     
