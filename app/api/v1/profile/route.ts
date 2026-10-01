@@ -20,13 +20,16 @@ export async function PUT(req: Request) {
     const updateData: any = {};
     if (name) updateData.name = name;
     if (phone) {
-      const phoneClean = phone.replace(/[^0-9+]/g, "");
+      let cleanPhone = phone.replace(/[^0-9]/g, "");
+      if (cleanPhone.startsWith("91") && cleanPhone.length > 10) {
+        cleanPhone = cleanPhone.substring(2);
+      }
       // Check if phone belongs to someone else
-      const existingPhone = await prisma.user.findUnique({ where: { phone: phoneClean } });
+      const existingPhone = await prisma.user.findFirst({ where: { phone: cleanPhone } });
       if (existingPhone && existingPhone.id !== id) {
         return NextResponse.json({ error: "Phone number already in use by another account" }, { status: 400 });
       }
-      updateData.phone = phoneClean;
+      updateData.phone = cleanPhone;
     }
 
     // Pin change logic

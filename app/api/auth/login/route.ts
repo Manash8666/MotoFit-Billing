@@ -9,8 +9,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Phone and PIN are required" }, { status: 400 });
     }
 
+    let cleanPhone = phone.replace(/[^0-9]/g, "");
+    if (cleanPhone.startsWith("91") && cleanPhone.length > 10) {
+      cleanPhone = cleanPhone.substring(2);
+    }
+
     const user = await prisma.user.findFirst({
-      where: { phone: phone.trim() }
+      where: { phone: cleanPhone }
     });
 
     if (!user) {
