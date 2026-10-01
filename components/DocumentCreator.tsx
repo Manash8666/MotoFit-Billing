@@ -46,6 +46,40 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
         if (Array.isArray(data)) setParts(data);
       })
       .catch(console.error);
+
+    // Duplicate logic
+    const params = new URLSearchParams(window.location.search);
+    const duplicateId = params.get('duplicate');
+    if (duplicateId) {
+      fetch(`/api/v1/documents/${duplicateId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && !data.error) {
+            setFormData(prev => ({
+              ...prev,
+              customerName: data.vehicle?.customer?.name || "",
+              customerPhone: data.vehicle?.customer?.phone || "",
+              vehicleReg: data.vehicle?.regNumber || "",
+              makeModel: data.vehicle?.makeModel || "",
+              workTypeNote: data.workTypeNote || "",
+              paymentMethod: data.paymentMethod || "CASH"
+            }));
+            if (data.items && Array.isArray(data.items)) {
+              setItems(data.items.map((i: any) => ({
+                id: Date.now().toString() + Math.random().toString(),
+                sectionName: i.sectionName || "",
+                title: i.title || "",
+                description: i.description || "",
+                quantity: i.quantity || 1,
+                qtyUnit: i.qtyUnit || "Pcs",
+                rate: i.rate || 0,
+                mrpDiscount: i.mrpDiscount || 0
+              })));
+            }
+          }
+        })
+        .catch(console.error);
+    }
   }, []);
 
   const handleAddRow = () => {

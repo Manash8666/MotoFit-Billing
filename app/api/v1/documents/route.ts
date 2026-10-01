@@ -3,6 +3,25 @@ import { prisma } from "@/lib/prisma";
 import { calculateInvoiceTotals } from "@/lib/billing-calculations";
 import crypto from "crypto";
 
+export async function GET() {
+  try {
+    const documents = await prisma.document.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        vehicle: {
+          include: {
+            customer: true
+          }
+        },
+        items: true
+      }
+    });
+    return NextResponse.json(documents);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();

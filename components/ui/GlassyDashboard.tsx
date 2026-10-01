@@ -19,7 +19,8 @@ import {
   LogOut,
   Wrench,
   Menu,
-  X
+  X,
+  Archive
 } from 'lucide-react'
 
 export default function GlassyDashboard() {
@@ -127,6 +128,13 @@ export default function GlassyDashboard() {
       icon: <ArrowRightLeft size={28} className="text-[#c084fc]" />,
       link: '/transactions',
       color: '#c084fc',
+    },
+    {
+      title: 'Invoice History',
+      desc: 'Past bills & duplicates',
+      icon: <Archive size={28} className="text-[#f97316]" />,
+      link: '/invoices',
+      color: '#f97316',
     },
     {
       title: 'Settings',
