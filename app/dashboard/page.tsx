@@ -38,13 +38,13 @@ export default function FinancialDashboardPage() {
           Back to Launcher
         </Link>
 
-        <header className="flex justify-between items-end mb-10">
+        <header className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-10">
           <div>
-            <h1 className="text-4xl font-bold flex items-center gap-3">
-              <PieChart className="text-[#3b82f6]" size={40} />
+            <h1 className="text-2xl sm:text-4xl font-bold flex items-center gap-3">
+              <PieChart className="text-[#3b82f6]" size={32} />
               Financial Dashboard
             </h1>
-            <p className="text-gray-400 mt-2">Revenue, expenses, and overall analytics</p>
+            <p className="text-gray-400 mt-2 text-sm sm:text-base">Revenue, expenses, and overall analytics</p>
           </div>
         </header>
 

@@ -103,15 +103,15 @@ export default function ClientsPage() {
           Back to Dashboard
         </Link>
 
-        <header className="flex justify-between items-end mb-10">
+        <header className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-10">
           <div>
-            <h1 className="text-4xl font-bold flex items-center gap-3">
-              <Users className="text-[#10b981]" size={40} />
+            <h1 className="text-2xl sm:text-4xl font-bold flex items-center gap-3">
+              <Users className="text-[#10b981]" size={32} />
               Clients Directory
             </h1>
             <p className="text-gray-400 mt-2">Manage customer records and history</p>
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="bg-[#10b981] hover:bg-[#10b981]/80 text-black font-semibold py-3 px-6 rounded-xl flex items-center gap-2 transition-all">
+          <button onClick={() => setIsModalOpen(true)} className="bg-[#10b981] hover:bg-[#10b981]/80 text-black font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all w-full sm:w-auto">
             <Plus size={20} />
             New Client
           </button>

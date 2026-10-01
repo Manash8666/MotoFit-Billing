@@ -94,15 +94,15 @@ export default function PartsPage() {
           Back to Dashboard
         </Link>
 
-        <header className="flex justify-between items-end mb-10">
+        <header className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-10">
           <div>
-            <h1 className="text-4xl font-bold flex items-center gap-3">
-              <Settings className="text-[#8b5cf6]" size={40} />
+            <h1 className="text-2xl sm:text-4xl font-bold flex items-center gap-3">
+              <Settings className="text-[#8b5cf6]" size={32} />
               Parts & Services
             </h1>
-            <p className="text-gray-400 mt-2">Manage inventory and labor catalogs</p>
+            <p className="text-gray-400 mt-2 text-sm sm:text-base">Manage inventory and labor catalogs</p>
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="bg-[#8b5cf6] hover:bg-[#8b5cf6]/80 text-white font-semibold py-3 px-6 rounded-xl flex items-center gap-2 transition-all">
+          <button onClick={() => setIsModalOpen(true)} className="bg-[#8b5cf6] hover:bg-[#8b5cf6]/80 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all w-full sm:w-auto">
             <Plus size={20} />
             New Item
           </button>

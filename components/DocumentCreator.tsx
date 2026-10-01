@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { MotoFitPrintableInvoice, PrintableDocProps } from "@/components/MotoFitPrintableInvoice";
-import { Plus, Trash2, Eye, Edit2, Download } from "lucide-react";
+import { Plus, Trash2, Eye, Edit2, Download, Share2 } from "lucide-react";
 
 type LineItem = PrintableDocProps["data"]["items"][0];
 
@@ -55,25 +55,84 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const getInvoiceData = (): PrintableDocProps["data"] => {
     return {
       docType,
-      docNumber: formData.docNumber,
-      date: formData.date,
-      customerName: formData.customerName,
-      customerPhone: formData.customerPhone,
-      vehicleReg: formData.vehicleReg,
-      makeModel: formData.makeModel,
-      runningKm: Number(formData.runningKm),
+      docNumber: formData.docNumber || (docType === "SOW_BILL" ? "MF2-PASS-01" : "MF2-EST-01"),
+      date: formData.date || new Date().toISOString().split("T")[0],
+      customerName: formData.customerName || "Walk-in Customer",
+      customerPhone: formData.customerPhone || "9999999999",
+      vehicleReg: formData.vehicleReg || "UNKNOWN",
+      makeModel: formData.makeModel || "Unknown",
+      runningKm: Number(formData.runningKm) || 0,
       workTypeNote: formData.workTypeNote,
       paymentMethod: formData.paymentMethod,
       items: items.map(item => ({
         ...item,
-        quantity: Number(item.quantity),
-        rate: Number(item.rate)
+        quantity: Number(item.quantity) || 1,
+        rate: Number(item.rate) || 0
       }))
     };
   };
 
-  const handlePrint = () => {
-    window.print();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const generatePDF = async () => {
+    const { default: html2canvas } = await import('html2canvas');
+    const { jsPDF } = await import('jspdf');
+
+    const element = document.getElementById('printable-invoice');
+    if (!element) return null;
+    
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    return pdf;
+  };
+
+  const handleDownloadPDF = async () => {
+    setIsExporting(true);
+    try {
+      const pdf = await generatePDF();
+      if (pdf) {
+        pdf.save(`${formData.docNumber || 'MotoFit-Doc'}.pdf`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate PDF");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleShareWhatsApp = async () => {
+    setIsExporting(true);
+    try {
+      const pdf = await generatePDF();
+      if (!pdf) return;
+      
+      const blob = pdf.output('blob');
+      const file = new File([blob], `${formData.docNumber || 'MotoFit-Doc'}.pdf`, { type: 'application/pdf' });
+      
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `MotoFit Document ${formData.docNumber}`,
+          text: `Here is your MotoFit document: ${formData.docNumber}`,
+          files: [file]
+        });
+      } else {
+        // Fallback if file sharing not supported
+        const text = encodeURIComponent(`Hello ${formData.customerName}, your MotoFit document ${formData.docNumber} is ready.`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to share via WhatsApp. You can download the PDF and share manually.");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleSave = async () => {
@@ -105,31 +164,41 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   if (isPreview) {
     return (
       <div className="flex flex-col items-center">
-        <div className="w-full flex justify-between mb-6 no-print">
+        <div className="w-full flex flex-col sm:flex-row justify-between gap-4 mb-6 no-print">
           <button 
             onClick={() => setIsPreview(false)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition w-full sm:w-auto"
           >
             <Edit2 size={16} /> Edit Details
           </button>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button 
               onClick={handleSave}
               disabled={isSaving}
-              className={`flex items-center gap-2 px-4 py-2 text-white rounded transition ${saveSuccess ? 'bg-green-500' : 'bg-blue-600 hover:bg-blue-500'} ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex items-center justify-center gap-2 px-4 py-2 text-white rounded transition ${saveSuccess ? 'bg-green-500' : 'bg-blue-600 hover:bg-blue-500'} ${isSaving ? 'opacity-50 cursor-not-allowed' : ''} w-full sm:w-auto`}
             >
-              {saveSuccess ? "Saved!" : isSaving ? "Saving..." : "Save to Database"}
+              {saveSuccess ? "Saved!" : isSaving ? "Saving..." : "Save to DB"}
             </button>
             <button 
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-[#f04923] text-white rounded hover:bg-red-600 transition shadow-lg shadow-red-500/30"
+              onClick={handleShareWhatsApp}
+              disabled={isExporting}
+              className={`flex items-center justify-center gap-2 px-4 py-2 bg-[#25D366] text-white rounded hover:bg-[#20b858] transition shadow-lg shadow-green-500/30 w-full sm:w-auto ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <Download size={16} /> Print / Save PDF
+              <Share2 size={16} /> {isExporting ? "Generating..." : "WhatsApp"}
+            </button>
+            <button 
+              onClick={handleDownloadPDF}
+              disabled={isExporting}
+              className={`flex items-center justify-center gap-2 px-4 py-2 bg-[#f04923] text-white rounded hover:bg-red-600 transition shadow-lg shadow-red-500/30 w-full sm:w-auto ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <Download size={16} /> {isExporting ? "Generating..." : "Save PDF"}
             </button>
           </div>
         </div>
-        <div className="shadow-2xl overflow-hidden print:shadow-none print:w-full">
-          <MotoFitPrintableInvoice data={getInvoiceData()} />
+        <div className="shadow-2xl overflow-x-auto print:shadow-none print:w-full print:overflow-visible w-full">
+          <div id="printable-invoice" className="min-w-[800px] print:min-w-0 mx-auto bg-white">
+            <MotoFitPrintableInvoice data={getInvoiceData()} />
+          </div>
         </div>
       </div>
     );
@@ -281,7 +350,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-3 pr-8">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pr-8 mt-3">
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Qty</label>
                   <input 

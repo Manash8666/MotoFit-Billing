@@ -153,20 +153,20 @@ export default function UsersPage() {
               return (
                 <div className="space-y-3">
                   {users.map(user => (
-                    <div key={user.id} className="flex items-center justify-between p-4 bg-[#0b132b] border border-gray-700 rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-xl font-bold text-gray-400">
+                    <div key={user.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-[#0b132b] border border-gray-700 rounded-lg gap-4">
+                      <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <div className="w-12 h-12 shrink-0 rounded-full bg-gray-800 flex items-center justify-center text-xl font-bold text-gray-400">
                           {user.name.charAt(0)}
                         </div>
-                        <div>
-                          <h3 className="font-bold text-white text-lg">{user.name}</h3>
-                          <div className="flex gap-4 text-xs text-gray-400 mt-1">
-                            <span className="flex items-center gap-1"><Phone size={12} /> {user.phone}</span>
-                            <span className="flex items-center gap-1 text-[#06b6d4]"><Shield size={12} /> {user.role.replace(/_/g, " ")}</span>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-white text-lg truncate">{user.name}</h3>
+                          <div className="flex flex-wrap gap-2 sm:gap-4 text-xs text-gray-400 mt-1">
+                            <span className="flex items-center gap-1 whitespace-nowrap"><Phone size={12} /> {user.phone}</span>
+                            <span className="flex items-center gap-1 text-[#06b6d4] whitespace-nowrap"><Shield size={12} /> {user.role.replace(/_/g, " ")}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t border-gray-800 sm:border-0 pt-3 sm:pt-0">
                         <button
                           onClick={async () => {
                             if (!confirm(`Reset PIN for "${user.name}" to 0000?`)) return;
