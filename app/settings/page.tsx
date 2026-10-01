@@ -81,12 +81,13 @@ export default function SettingsPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Link href="/" className="px-3 py-1.5 text-sm font-medium border border-white/10 rounded-md hover:bg-white/5 transition-colors">
-            ← Back
+            <span className="hidden sm:inline">← Back</span>
+            <span className="sm:hidden">←</span>
           </Link>
           <button onClick={handleSaveSettings} className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${saveStatus === 'saved' ? 'bg-green-600 text-white' : 'bg-white text-black hover:bg-gray-200'}`}>
-            {saveStatus === 'saved' ? '✓ Saved' : 'Save'}
+            {saveStatus === 'saved' ? '✓' : 'Save'}
           </button>
         </div>
       </header>
@@ -175,12 +176,12 @@ export default function SettingsPage() {
               </div>
 
               {activeSetting === 'Company Details' && (
-                <div className="flex gap-6">
+                <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-2 -mb-2">
                   {tabs.map(tab => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
+                      className={`pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap shrink-0 ${
                         activeTab === tab ? 'border-white text-white' : 'border-transparent text-gray-400 hover:text-gray-200'
                       }`}
                     >
