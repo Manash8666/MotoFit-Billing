@@ -18,7 +18,8 @@ export async function GET() {
       phone: c.phone,
       vehicle: c.vehicles.length > 0 ? c.vehicles[0].makeModel : 'No Vehicle',
       vehicles: c.vehicles,
-      lastVisit: new Date(c.updatedAt).toLocaleDateString()
+      lastVisit: new Date(c.updatedAt).toLocaleDateString(),
+      rawLastVisit: c.updatedAt
     }));
 
     return NextResponse.json(formatted);

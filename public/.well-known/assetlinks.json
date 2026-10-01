@@ -4,7 +4,9 @@
     "target": {
       "namespace": "android_app",
       "package_name": "in.motofit2.billing",
-      "sha256_cert_fingerprints": []
+      "sha256_cert_fingerprints": [
+        "FA:2A:04:X8:48:86:14:4E:57:9F:D9:6A:X3:B7:4B:F7:2F:3C:D3:5F:X9:A4:4E:9F:8C:8B:X9:06:X3:84:X4:68"
+      ]
     }
   }
 ]

@@ -1,8 +1,10 @@
 'use client';
 import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Plus, Search, X, Loader2, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Users, Plus, Search, X, Loader2, MessageCircle, FileText, Bell } from 'lucide-react';
 import Link from 'next/link';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface Client {
   id: string | number;
@@ -10,6 +12,7 @@ interface Client {
   phone: string;
   vehicle: string;
   lastVisit: string;
+  rawLastVisit?: string;
 }
 
 export default function ClientsPage() {
@@ -18,6 +21,39 @@ export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newClient, setNewClient] = useState({ name: '', phone: '', vehicle: '' });
+  const [showDueOnly, setShowDueOnly] = useState(false);
+
+  const isDueForService = (rawDate?: string) => {
+    if (!rawDate) return false;
+    const diff = Date.now() - new Date(rawDate).getTime();
+    return diff > 90 * 24 * 60 * 60 * 1000; // 90 days
+  };
+
+  const handleGenerateStatement = async (client: Client) => {
+    // Basic mock generation of Statement. In production, this would fetch all documents for the client.
+    const doc = new jsPDF();
+    doc.setFontSize(22);
+    doc.text("MotoFit Lifetime Statement", 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Customer: ${client.name}`, 14, 30);
+    doc.text(`Phone: ${client.phone}`, 14, 36);
+    doc.text(`Vehicle: ${client.vehicle}`, 14, 42);
+    doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 48);
+
+    autoTable(doc, {
+      head: [['Date', 'Description', 'Amount', 'Status']],
+      body: [
+        [client.lastVisit, 'Standard Servicing & Oil Change', '₹2,500', 'Paid'],
+        ['--', 'Previous balances cleared', '₹0', 'Cleared']
+      ],
+      startY: 55,
+      theme: 'striped',
+      headStyles: { fillColor: [16, 185, 129] }
+    });
+
+    doc.save(`Statement_${client.name.replace(/\s+/g, '_')}.pdf`);
+  };
 
   useEffect(() => {
     apiClient.fetch('/api/v1/customers')
@@ -32,11 +68,17 @@ export default function ClientsPage() {
       });
   }, []);
 
-  const filteredClients = clients.filter(client => 
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    client.phone.includes(searchQuery) ||
-    client.vehicle.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClients = clients.filter(client => {
+    const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          client.phone.includes(searchQuery) ||
+                          client.vehicle.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (showDueOnly && !isDueForService(client.rawLastVisit)) {
+      return false;
+    }
+    
+    return matchesSearch;
+  });
 
   const handleAddClient = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,15 +161,28 @@ export default function ClientsPage() {
         </header>
 
         <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
-          <div className="flex items-center bg-black/40 border border-white/10 rounded-xl px-4 py-3 mb-6">
-            <Search size={20} className="text-gray-400 mr-3" />
-            <input 
-              type="text" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search clients by name, phone, or vehicle..." 
-              className="bg-transparent border-none outline-none text-white w-full"
-            />
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+            <div className="flex items-center bg-black/40 border border-white/10 rounded-xl px-4 py-3 w-full">
+              <Search size={20} className="text-gray-400 mr-3" />
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search clients by name, phone, or vehicle..." 
+                className="bg-transparent border-none outline-none text-white w-full"
+              />
+            </div>
+            <button 
+              onClick={() => setShowDueOnly(!showDueOnly)}
+              className={`px-4 py-3 rounded-xl font-medium border flex items-center justify-center gap-2 whitespace-nowrap transition-colors w-full sm:w-auto ${
+                showDueOnly 
+                  ? 'bg-amber-500/20 text-amber-500 border-amber-500/50' 
+                  : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
+              }`}
+            >
+              <Bell size={18} />
+              90+ Days Due
+            </button>
           </div>
 
           {filteredClients.length > 0 ? (
@@ -150,14 +205,26 @@ export default function ClientsPage() {
                       <td className="p-4 text-gray-400">{client.vehicle}</td>
                       <td className="p-4 text-right font-medium text-[#10b981]">{client.lastVisit}</td>
                       <td className="p-4 text-right">
-                        <a 
-                          href={`https://wa.me/${client.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${client.name}, your vehicle (${client.vehicle}) servicing is complete and ready for pickup at MotoFit!`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#25D366] text-white text-xs rounded hover:bg-[#20b858] transition"
-                        >
-                          <MessageCircle size={14} /> Reminder
-                        </a>
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => handleGenerateStatement(client)}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs rounded hover:bg-blue-500/20 transition"
+                          >
+                            <FileText size={14} /> Statement
+                          </button>
+                          <a 
+                            href={`https://wa.me/${client.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                              isDueForService(client.rawLastVisit) 
+                                ? `Hi ${client.name}, it has been over 3 months since your ${client.vehicle} was serviced. Please book an appointment with MotoFit for a routine checkup to maintain optimal performance!` 
+                                : `Hi ${client.name}, your vehicle (${client.vehicle}) servicing is complete and ready for pickup at MotoFit!`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#25D366] text-white text-xs rounded hover:bg-[#20b858] transition"
+                          >
+                            <MessageCircle size={14} /> {isDueForService(client.rawLastVisit) ? 'Remind Due' : 'Reminder'}
+                          </a>
+                        </div>
                       </td>
                     </tr>
                   ))}
