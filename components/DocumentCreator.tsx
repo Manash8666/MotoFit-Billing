@@ -28,13 +28,22 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
 
   const [items, setItems] = useState<LineItem[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
+  const [parts, setParts] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [activePartDropdown, setActivePartDropdown] = useState<string | null>(null);
 
   React.useEffect(() => {
     fetch('/api/v1/customers')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setCustomers(data);
+      })
+      .catch(console.error);
+      
+    fetch('/api/v1/parts')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setParts(data);
       })
       .catch(console.error);
   }, []);
@@ -369,15 +378,47 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                     onChange={e => handleItemChange(item.id, "sectionName", e.target.value)}
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <label className="block text-xs text-gray-500 mb-1">Item Title</label>
                   <input 
                     type="text" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     placeholder="e.g. Engine Oil Motul"
                     value={item.title} 
-                    onChange={e => handleItemChange(item.id, "title", e.target.value)}
+                    onFocus={() => setActivePartDropdown(item.id)}
+                    onBlur={() => setTimeout(() => setActivePartDropdown(null), 200)}
+                    onChange={e => {
+                      handleItemChange(item.id, "title", e.target.value);
+                      setActivePartDropdown(item.id);
+                    }}
                   />
+                  {activePartDropdown === item.id && parts.length > 0 && item.title.length > 1 && (
+                    <div className="absolute z-50 w-full mt-1 bg-[#0b132b] border border-gray-700 rounded-lg shadow-2xl max-h-48 overflow-y-auto">
+                      {parts
+                        .filter(p => p.name.toLowerCase().includes(item.title.toLowerCase()) || (p.category && p.category.toLowerCase().includes(item.title.toLowerCase())))
+                        .map(p => (
+                        <div 
+                          key={p.id} 
+                          className="p-3 hover:bg-white/10 cursor-pointer border-b border-gray-800 last:border-0"
+                          onClick={() => {
+                            setItems(items.map(i => i.id === item.id ? { 
+                              ...i, 
+                              title: p.name,
+                              sectionName: p.category || i.sectionName,
+                              rate: Number(p.price) || 0
+                            } : i));
+                            setActivePartDropdown(null);
+                          }}
+                        >
+                          <p className="text-white font-medium text-sm">{p.name}</p>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-xs text-[#06b6d4]">{p.category || 'General'}</span>
+                            <span className="text-xs text-green-400 font-mono">₹{p.price}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs text-gray-500 mb-1">Description (Optional)</label>
