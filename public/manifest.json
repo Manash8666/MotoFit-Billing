@@ -6,38 +6,12 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui", "browser"],
   "background_color": "#0b132b",
   "theme_color": "#f04923",
   "orientation": "portrait",
   "dir": "ltr",
   "lang": "en",
   "categories": ["business", "productivity"],
-  "prefer_related_applications": false,
-  "related_applications": [],
-  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
-  "launch_handler": {
-    "client_mode": "focus-existing"
-  },
-  "scope_extensions": [
-    { "origin": "https://billing.motofit2.in" }
-  ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+motofit",
-      "url": "/?action=%s"
-    }
-  ],
-  "file_handlers": [],
-  "share_target": {
-    "action": "/",
-    "method": "GET",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  },
   "icons": [
     {
       "src": "https://billing.motofit2.in/icon-192.png",
