@@ -3,9 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "in.motofit2.billing",
+      "package_name": "in.motofit2.billing.twa",
       "sha256_cert_fingerprints": [
-        "FA:2A:04:X8:48:86:14:4E:57:9F:D9:6A:X3:B7:4B:F7:2F:3C:D3:5F:X9:A4:4E:9F:8C:8B:X9:06:X3:84:X4:68"
+        "EA:66:0D:82:18:D9:DF:24:3C:95:28:9B:ED:D4:5F:01:F9:1A:7D:30:7C:1C:A3:43:B0:1B:3C:59:7E:55:AD:94"
       ]
     }
   }
