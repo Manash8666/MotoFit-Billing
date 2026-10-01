@@ -6,12 +6,15 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "background_color": "#0b132b",
   "theme_color": "#f04923",
   "orientation": "portrait",
   "dir": "ltr",
   "lang": "en",
   "categories": ["business", "productivity"],
+  "prefer_related_applications": false,
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "icons": [
     {
       "src": "https://billing.motofit2.in/icon-192.png",
@@ -40,11 +43,41 @@
   ],
   "screenshots": [
     {
-      "src": "https://billing.motofit2.in/icon-512.png",
-      "sizes": "512x512",
+      "src": "https://billing.motofit2.in/screenshot-mobile.png",
+      "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "MotoFit 2 Login"
+      "label": "MotoFit 2 Dashboard - All Modules"
+    },
+    {
+      "src": "https://billing.motofit2.in/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "MotoFit 2 Staff Login"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Bill",
+      "short_name": "Bill",
+      "description": "Create a new service bill",
+      "url": "/bill",
+      "icons": [{ "src": "https://billing.motofit2.in/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "New Estimate",
+      "short_name": "Estimate",
+      "description": "Create a repair estimate",
+      "url": "/estimate",
+      "icons": [{ "src": "https://billing.motofit2.in/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Clients",
+      "short_name": "Clients",
+      "description": "View client directory",
+      "url": "/clients",
+      "icons": [{ "src": "https://billing.motofit2.in/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
