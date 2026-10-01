@@ -57,8 +57,8 @@ export default function LoginPage() {
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-[#f04923]/20 border border-[#f04923]/30 rounded-2xl mb-4 shadow-lg shadow-orange-500/10">
-            <Wrench size={40} className="text-[#f04923]" />
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-white/5 border border-white/10 rounded-2xl mb-4 shadow-lg shadow-orange-500/10 overflow-hidden p-1">
+            <img src="/motofit-logo.jpg" alt="MotoFit Logo" className="w-full h-full object-contain rounded-xl" />
           </div>
           <h1 className="text-3xl font-black text-white tracking-tight">MotoFit 2</h1>
           <p className="text-gray-400 text-sm mt-1">Billing & Service CRM</p>
@@ -66,7 +66,7 @@ export default function LoginPage() {
 
         {/* Login Card */}
         <div className="bg-[#1a233a] border border-white/10 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
-          <h2 className="text-lg font-semibold text-white mb-6">Staff Login</h2>
+          <h2 className="text-lg font-semibold text-white mb-6">Authorized Login</h2>
 
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Phone */}

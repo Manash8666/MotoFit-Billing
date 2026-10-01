@@ -137,9 +137,18 @@ export default function GlassyDashboard() {
     }
   ];
 
-  const filtered = features.filter(f =>
-    !searchQuery || f.title.toLowerCase().includes(searchQuery.toLowerCase()) || f.desc.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filtered = features.filter(f => {
+    // Search filter
+    const matchesSearch = !searchQuery || f.title.toLowerCase().includes(searchQuery.toLowerCase()) || f.desc.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Role-based Access Control
+    const isAdmin = userRole === 'SUPER ADMIN' || userRole === 'SERVICE MANAGER';
+    const isRestrictedTile = f.link === '/users' || f.link === '/settings' || f.link === '/dashboard';
+
+    if (isRestrictedTile && !isAdmin) return false;
+    
+    return matchesSearch;
+  });
 
   if (!mounted) return null;
 
