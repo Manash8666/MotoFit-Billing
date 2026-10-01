@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Search, Plus, Home, ChevronDown, Check, X } from 'lucide-react';
+import { Search, Plus, Home, ChevronDown, Check, X, Menu } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SettingsPage() {
@@ -10,6 +10,7 @@ export default function SettingsPage() {
   const [resetConfirmation, setResetConfirmation] = useState('');
   const [isResetting, setIsResetting] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleSaveSettings = () => {
     setSaveStatus('saved');
@@ -59,55 +60,77 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-[#111111] text-gray-200 font-sans flex flex-col">
       {/* Top Header */}
-      <header className="flex items-center justify-between p-4 border-b border-white/10 bg-[#161616]">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-medium text-white">{activeSetting}</h1>
-          <button className="p-1 border border-white/10 rounded hover:bg-white/5 transition-colors">
-            <Plus size={18} />
+      <header className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#161616] gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {/* Hamburger for mobile */}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="lg:hidden p-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors shrink-0"
+          >
+            <Menu size={18} />
           </button>
-          
-          <div className="flex items-center bg-black/40 border border-white/10 rounded-md px-3 py-1.5 ml-2 w-72 focus-within:border-white/30 transition-all">
-            <Search size={16} className="text-gray-400 mr-2" />
-            <input 
-              type="text" 
-              placeholder="Find invoices, clients, and more" 
-              className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-gray-500"
-            />
-          </div>
+          <h1 className="text-base sm:text-xl font-medium text-white truncate">{activeSetting}</h1>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link href="/" className="px-4 py-1.5 text-sm font-medium border border-white/10 rounded-md hover:bg-white/5 transition-colors">
-            Cancel
+        <div className="hidden md:flex items-center bg-black/40 border border-white/10 rounded-md px-3 py-1.5 w-64 focus-within:border-white/30 transition-all">
+          <Search size={16} className="text-gray-400 mr-2 shrink-0" />
+          <input
+            type="text"
+            placeholder="Find settings..."
+            className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-gray-500"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Link href="/" className="px-3 py-1.5 text-sm font-medium border border-white/10 rounded-md hover:bg-white/5 transition-colors">
+            ← Back
           </Link>
-          <button onClick={handleSaveSettings} className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${saveStatus === 'saved' ? 'bg-green-600 text-white' : 'bg-white text-black hover:bg-gray-200'}`}>
+          <button onClick={handleSaveSettings} className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${saveStatus === 'saved' ? 'bg-green-600 text-white' : 'bg-white text-black hover:bg-gray-200'}`}>
             {saveStatus === 'saved' ? '✓ Saved' : 'Save'}
           </button>
         </div>
       </header>
 
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 px-6 py-3 text-sm text-gray-400 border-b border-white/5">
+      <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 border-b border-white/5">
         <Link href="/" className="hover:text-white transition-colors">
           <Home size={16} />
         </Link>
         <span>/</span>
         <span>Settings</span>
         <span>/</span>
-        <span className="text-gray-200">{activeSetting}</span>
+        <span className="text-gray-200 truncate">{activeSetting}</span>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <aside className="w-64 overflow-y-auto border-r border-white/5 pb-10">
+      {/* Mobile sidebar overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <div className="flex flex-1 min-h-0 relative">
+        {/* Sidebar - drawer on mobile, fixed column on desktop */}
+        <aside className={`
+          fixed top-0 left-0 h-full z-50 w-72 bg-[#161616] border-r border-white/5 overflow-y-auto transition-transform duration-300
+          lg:static lg:translate-x-0 lg:w-64 lg:z-auto
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
+          {/* Close button on mobile */}
+          <div className="flex items-center justify-between p-4 border-b border-white/5 lg:hidden">
+            <span className="font-medium text-white">Settings</span>
+            <button onClick={() => setIsSidebarOpen(false)}><X size={18} /></button>
+          </div>
+
           <div className="p-4">
             <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Basic Settings</h2>
             <ul className="space-y-0.5">
               {basicSettings.map(setting => (
                 <li key={setting}>
-                  <button 
-                    onClick={() => setActiveSetting(setting)}
-                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors ${
+                  <button
+                    onClick={() => { setActiveSetting(setting); setIsSidebarOpen(false); }}
+                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                       activeSetting === setting ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
                     }`}
                   >
@@ -121,16 +144,14 @@ export default function SettingsPage() {
           <div className="p-4 pt-2">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Advanced Settings</h2>
-              <span className="text-[10px] bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded flex items-center gap-1">
-                ✦ Pro
-              </span>
+              <span className="text-[10px] bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded">✦ Pro</span>
             </div>
             <ul className="space-y-0.5">
               {advancedSettings.map(setting => (
                 <li key={setting}>
-                  <button 
-                    onClick={() => setActiveSetting(setting)}
-                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors ${
+                  <button
+                    onClick={() => { setActiveSetting(setting); setIsSidebarOpen(false); }}
+                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                       activeSetting === setting ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
                     }`}
                   >
@@ -143,7 +164,7 @@ export default function SettingsPage() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-6 bg-[#111111]">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#111111]">
           <div className="max-w-4xl border border-white/5 rounded-lg bg-[#161616]">
             
             {/* Header & Tabs (dynamic based on setting) */}

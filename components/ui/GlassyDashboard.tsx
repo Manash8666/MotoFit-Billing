@@ -2,13 +2,12 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   FileText,
   ClipboardList,
   Users,
   Search,
-  Sun,
-  Moon,
   Zap,
   Settings,
   PieChart,
@@ -16,206 +15,270 @@ import {
   MinusCircle,
   Receipt,
   ArrowRightLeft,
-  Sliders
+  Sliders,
+  LogOut,
+  Wrench,
+  Menu,
+  X
 } from 'lucide-react'
 
-export default function GlassyDashboard({ userName = 'Admin' }: { userName?: string }) {
+export default function GlassyDashboard() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [userName, setUserName] = useState('Admin');
+  const [userRole, setUserRole] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   useEffect(() => {
     setMounted(true);
+    try {
+      const raw = localStorage.getItem('motofit_user');
+      if (raw) {
+        const user = JSON.parse(raw);
+        setUserName(user.name || 'Admin');
+        setUserRole(user.role?.replace(/_/g, ' ') || '');
+      }
+    } catch {
+      // ignore parse errors
+    }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('motofit_session');
+    localStorage.removeItem('motofit_user');
+    router.push('/login');
+  };
 
   const features = [
     {
-      title: 'SoW Bill Creation',
-      desc: 'Create and manage Final Bills & Invoices',
-      icon: <FileText size={32} className="text-[#f04923]" />,
+      title: 'SoW Bill',
+      desc: 'Create Final Bills & Invoices',
+      icon: <FileText size={28} className="text-[#f04923]" />,
       link: '/bill',
       color: '#f04923',
-      bgClass: 'hover:bg-[#f04923]/10 hover:border-[#f04923]/50'
     },
     {
-      title: 'SoW Estimate Creation',
-      desc: 'Draft repair estimates for customer approval',
-      icon: <ClipboardList size={32} className="text-[#ffd600]" />,
+      title: 'SoW Estimate',
+      desc: 'Draft customer repair estimates',
+      icon: <ClipboardList size={28} className="text-[#ffd600]" />,
       link: '/estimate',
       color: '#ffd600',
-      bgClass: 'hover:bg-[#ffd600]/10 hover:border-[#ffd600]/50'
     },
     {
-      title: 'Clients Directory',
-      desc: 'Manage customer records and history',
-      icon: <Users size={32} className="text-[#10b981]" />,
+      title: 'Clients',
+      desc: 'Customer records & history',
+      icon: <Users size={28} className="text-[#10b981]" />,
       link: '/clients',
       color: '#10b981',
-      bgClass: 'hover:bg-[#10b981]/10 hover:border-[#10b981]/50'
     },
     {
       title: 'Parts & Services',
-      desc: 'Manage inventory and labor catalogs',
-      icon: <Settings size={32} className="text-[#8b5cf6]" />,
+      desc: 'Inventory and labor catalog',
+      icon: <Wrench size={28} className="text-[#8b5cf6]" />,
       link: '/parts',
       color: '#8b5cf6',
-      bgClass: 'hover:bg-[#8b5cf6]/10 hover:border-[#8b5cf6]/50'
     },
     {
-      title: 'User Management',
-      desc: 'Manage Garage Mechanics and Managers',
-      icon: <Users size={32} className="text-[#06b6d4]" />,
+      title: 'Staff',
+      desc: 'Manage mechanics & managers',
+      icon: <Users size={28} className="text-[#06b6d4]" />,
       link: '/users',
       color: '#06b6d4',
-      bgClass: 'hover:bg-[#06b6d4]/10 hover:border-[#06b6d4]/50'
     },
     {
-      title: 'AI Sales Analysis',
-      desc: 'Predictive sales & customer behavior insights',
-      icon: <Zap size={32} className="text-[#ff00ff]" />,
+      title: 'AI Sales',
+      desc: 'Predictive customer insights',
+      icon: <Zap size={28} className="text-[#ff00ff]" />,
       link: '/ai-sales',
       color: '#ff00ff',
-      bgClass: 'hover:bg-[#ff00ff]/10 hover:border-[#ff00ff]/50'
     },
     {
-      title: 'Financial Dashboard',
-      desc: 'Analytics, revenue, and overview',
-      icon: <PieChart size={32} className="text-[#3b82f6]" />,
+      title: 'Financials',
+      desc: 'Analytics & revenue overview',
+      icon: <PieChart size={28} className="text-[#3b82f6]" />,
       link: '/dashboard',
       color: '#3b82f6',
-      bgClass: 'hover:bg-[#3b82f6]/10 hover:border-[#3b82f6]/50'
     },
     {
       title: 'Credits',
-      desc: 'Manage customer credit notes',
-      icon: <PlusCircle size={32} className="text-[#34d399]" />,
+      desc: 'Customer credit notes',
+      icon: <PlusCircle size={28} className="text-[#34d399]" />,
       link: '/credits',
       color: '#34d399',
-      bgClass: 'hover:bg-[#34d399]/10 hover:border-[#34d399]/50'
     },
     {
       title: 'Debits',
-      desc: 'Manage debit notes and chargebacks',
-      icon: <MinusCircle size={32} className="text-[#f43f5e]" />,
+      desc: 'Debit notes & chargebacks',
+      icon: <MinusCircle size={28} className="text-[#f43f5e]" />,
       link: '/debits',
       color: '#f43f5e',
-      bgClass: 'hover:bg-[#f43f5e]/10 hover:border-[#f43f5e]/50'
     },
     {
       title: 'Expenses',
-      desc: 'Track operational garage expenses',
-      icon: <Receipt size={32} className="text-[#f59e0b]" />,
+      desc: 'Track garage expenses',
+      icon: <Receipt size={28} className="text-[#f59e0b]" />,
       link: '/expenses',
       color: '#f59e0b',
-      bgClass: 'hover:bg-[#f59e0b]/10 hover:border-[#f59e0b]/50'
     },
     {
       title: 'Transactions',
-      desc: 'Ledger of all financial transactions',
-      icon: <ArrowRightLeft size={32} className="text-[#c084fc]" />,
+      desc: 'Full financial ledger',
+      icon: <ArrowRightLeft size={28} className="text-[#c084fc]" />,
       link: '/transactions',
       color: '#c084fc',
-      bgClass: 'hover:bg-[#c084fc]/10 hover:border-[#c084fc]/50'
     },
     {
       title: 'Settings',
-      desc: 'Configure MotoFit system preferences',
-      icon: <Sliders size={32} className="text-[#94a3b8]" />,
+      desc: 'Configure preferences',
+      icon: <Sliders size={28} className="text-[#94a3b8]" />,
       link: '/settings',
       color: '#94a3b8',
-      bgClass: 'hover:bg-[#94a3b8]/10 hover:border-[#94a3b8]/50'
     }
   ];
+
+  const filtered = features.filter(f =>
+    !searchQuery || f.title.toLowerCase().includes(searchQuery.toLowerCase()) || f.desc.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1a1a2e] via-[#050511] to-black text-white overflow-hidden relative font-sans flex flex-col">
-      
-      {/* Animated Background Orbs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#f04923]/10 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#06b6d4]/10 rounded-full blur-[150px] pointer-events-none"></div>
-      <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] bg-[#ffd600]/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-      <div className="relative z-10 flex flex-col min-h-screen backdrop-blur-3xl bg-black/40">
-        
-        {/* TOP NAV BAR */}
-        <header className="flex items-center justify-between p-6 border-b border-t-white/10 border-l-white/10 border-b-black/80 border-r-black/80 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-xl shadow-2xl relative z-50">
-          <Link href="/" className="flex items-center gap-3 hover:scale-105 transition-transform duration-300">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#f04923] to-[#ffaa00] rounded-xl flex items-center justify-center shadow-lg shadow-[#f04923]/30">
-              <Zap size={22} className="text-white" strokeWidth={2.5} />
+      {/* Background Orbs */}
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#f04923]/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#06b6d4]/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] bg-[#ffd600]/10 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="relative z-10 flex flex-col min-h-screen bg-black/40">
+
+        {/* TOP NAV */}
+        <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/10 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-xl shadow-2xl">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 hover:scale-105 transition-transform duration-300 shrink-0">
+            <div className="w-9 h-9 bg-gradient-to-br from-[#f04923] to-[#ffaa00] rounded-xl flex items-center justify-center shadow-lg shadow-[#f04923]/30">
+              <Zap size={18} className="text-white" strokeWidth={2.5} />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">MotoFit <span className="text-[#f04923]">OS</span></h1>
+            <h1 className="text-xl font-bold tracking-tight">MotoFit <span className="text-[#f04923]">OS</span></h1>
           </Link>
 
-          <div className="hidden md:flex items-center bg-black/40 border border-t-black/80 border-l-black/80 border-b-white/10 border-r-white/10 shadow-inner rounded-full px-4 py-2 w-96 focus-within:border-white/30 focus-within:bg-black/60 transition-all">
-            <Search size={18} className="text-gray-400 mr-3" />
-            <input 
-              type="text" 
+          {/* Search - hidden on mobile */}
+          <div className="hidden md:flex items-center bg-black/40 border border-white/10 rounded-full px-4 py-2 w-80 focus-within:border-white/30 transition-all">
+            <Search size={16} className="text-gray-400 mr-3 shrink-0" />
+            <input
+              type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search invoices, estimates or mechanics..." 
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search modules..."
               className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-gray-500"
             />
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link href="/settings" className="text-gray-400 hover:text-white transition-colors">
-              <Settings size={22} />
-            </Link>
-            <Link href="/users" className="flex items-center gap-3 pl-6 border-l border-white/10 hover:text-[#f04923] transition-colors">
-              <img 
-                src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=120&h=120&q=80" 
-                alt="User" 
-                className="w-10 h-10 rounded-full border-2 border-white/20"
-              />
-              <span className="font-medium hidden sm:block">{userName}</span>
-            </Link>
+          {/* Desktop: User + Logout */}
+          <div className="hidden sm:flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm font-semibold text-white">{userName}</p>
+              {userRole && <p className="text-xs text-gray-400">{userRole}</p>}
+            </div>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#f04923] to-[#ffaa00] flex items-center justify-center text-white font-bold text-lg shadow-lg">
+              {userName.charAt(0)}
+            </div>
+            <button
+              onClick={handleLogout}
+              title="Logout"
+              className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
+
+          {/* Mobile: hamburger */}
+          <button
+            className="sm:hidden p-2 text-gray-400 hover:text-white rounded-lg"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </header>
 
-        {/* MAIN LAYOUT */}
-        <main className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
-          
-          <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl w-full"
+        {/* Mobile dropdown menu */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden bg-[#0b132b] border-b border-white/10 px-4 py-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f04923] to-[#ffaa00] flex items-center justify-center text-white font-bold text-lg">
+                {userName.charAt(0)}
+              </div>
+              <div>
+                <p className="font-semibold text-white">{userName}</p>
+                {userRole && <p className="text-xs text-gray-400">{userRole}</p>}
+              </div>
+            </div>
+            <div className="flex items-center bg-black/40 border border-white/10 rounded-xl px-3 py-2">
+              <Search size={16} className="text-gray-400 mr-2 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search modules..."
+                className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-gray-500"
+              />
+            </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium"
+            >
+              <LogOut size={16} /> Sign Out
+            </button>
+          </div>
+        )}
+
+        {/* MAIN GRID */}
+        <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto">
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-7xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, staggerChildren: 0.1 }}
+            transition={{ duration: 0.5 }}
           >
-            {features.map((feature, idx) => (
-              <Link href={feature.link} key={idx} className="block h-full group">
-                <motion.div 
-                  whileHover={{ scale: 1.05, y: -8, rotateX: 2, rotateY: 2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex flex-col items-center justify-center p-6 text-center h-[240px] cursor-pointer relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-transparent border border-t-white/30 border-l-white/20 border-b-black/50 border-r-black/50 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500"
-                  style={{ perspective: 1000 }}
+            {filtered.map((feature, idx) => (
+              <Link href={feature.link} key={idx} className="block group">
+                <motion.div
+                  whileHover={{ scale: 1.04, y: -4 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="flex flex-col items-center justify-center p-4 sm:p-6 text-center h-[160px] sm:h-[200px] cursor-pointer relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/10 to-transparent border border-t-white/30 border-l-white/20 border-b-black/50 border-r-black/50 backdrop-blur-xl shadow-xl transition-all duration-300"
+                  style={{ borderColor: `${feature.color}22` }}
                 >
-                  {/* Subtle inner highlight */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-white/5 rounded-3xl pointer-events-none"></div>
-                  
-                  <motion.div 
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-2xl relative z-10 bg-gradient-to-br from-white/10 to-black/40 border border-t-white/30 border-l-white/20 border-b-black/60 border-r-black/60 group-hover:scale-110 transition-transform duration-500"
-                    initial={{ rotate: -5 }}
-                    animate={{ rotate: 0 }}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/5 rounded-2xl pointer-events-none" />
+
+                  <div
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-3 sm:mb-4 shadow-lg relative z-10 bg-gradient-to-br from-white/10 to-black/40 border border-white/10 group-hover:scale-110 transition-transform duration-300"
+                    style={{ boxShadow: `0 4px 20px ${feature.color}22` }}
                   >
                     {feature.icon}
-                  </motion.div>
-                  
-                  <h2 className="text-xl font-bold mb-2 z-10 text-white transition-colors tracking-tight drop-shadow-md">
+                  </div>
+
+                  <h2 className="text-sm sm:text-base font-bold mb-1 z-10 text-white tracking-tight leading-tight">
                     {feature.title}
                   </h2>
-                  <p className="text-gray-300 text-xs z-10 group-hover:text-white transition-colors px-2 leading-relaxed drop-shadow-sm">
+                  <p className="text-gray-400 text-[10px] sm:text-xs z-10 group-hover:text-gray-200 transition-colors leading-relaxed line-clamp-2">
                     {feature.desc}
                   </p>
                 </motion.div>
               </Link>
             ))}
           </motion.div>
-          
+
+          {filtered.length === 0 && (
+            <div className="text-center py-20 text-gray-500">
+              <Search size={48} className="mx-auto mb-4 opacity-30" />
+              <p>No modules match "{searchQuery}"</p>
+            </div>
+          )}
         </main>
 
-        <footer className="w-full text-center p-4 text-xs text-gray-500 border-t border-white/5 bg-black/20">
-          Powered by MotoFit OS • <a href="https://motofit2.in" target="_blank" rel="noopener noreferrer" className="text-[#f04923] hover:underline">motofit2.in</a>
+        <footer className="w-full text-center p-3 text-xs text-gray-600 border-t border-white/5 bg-black/20">
+          MotoFit OS · Nigam Nagar, Ahmedabad · <a href="https://motofit2.in" target="_blank" rel="noopener noreferrer" className="text-[#f04923] hover:underline">motofit2.in</a>
         </footer>
       </div>
     </div>
