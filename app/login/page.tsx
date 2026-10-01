@@ -118,6 +118,12 @@ export default function LoginPage() {
             >
               {loading ? <><Loader2 size={18} className="animate-spin" /> Signing in...</> : "Sign In"}
             </button>
+            
+            <div className="text-center pt-2">
+              <p className="text-xs text-gray-500">
+                Forgot PIN? Contact the Super Admin to reset it.
+              </p>
+            </div>
           </form>
         </div>
 

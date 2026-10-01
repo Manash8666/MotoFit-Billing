@@ -158,13 +158,35 @@ export default function UsersPage() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDelete(user.id, user.name)}
-                      className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                      title="Remove user"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={async () => {
+                          if (!confirm(`Reset PIN for "${user.name}" to 0000?`)) return;
+                          try {
+                            const res = await fetch('/api/v1/users', {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ id: user.id, action: 'RESET_PIN' })
+                            });
+                            if (res.ok) alert(`PIN for ${user.name} has been reset to 0000`);
+                            else alert("Failed to reset PIN");
+                          } catch {
+                            alert("Network error");
+                          }
+                        }}
+                        className="p-2 text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg transition-colors text-xs font-semibold"
+                        title="Reset PIN to 0000"
+                      >
+                        Reset PIN
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user.id, user.name)}
+                        className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                        title="Remove user"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

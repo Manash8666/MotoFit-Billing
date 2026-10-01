@@ -58,3 +58,19 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const { id, action } = await req.json();
+    if (!id || action !== 'RESET_PIN') return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+
+    await prisma.user.update({
+      where: { id },
+      data: { pinHash: '0000' }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
