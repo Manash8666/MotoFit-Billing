@@ -11,6 +11,7 @@ export interface PrintableDocProps {
     runningKm: number;
     customerName: string;
     customerPhone: string;
+    creatorName?: string;
     workTypeNote?: string;
     paymentMethod: "CASH" | "BANK_TRANSFER" | "UPI";
     items: Array<{
@@ -229,7 +230,7 @@ export const MotoFitPrintableInvoice: React.FC<PrintableDocProps> = ({ data }) =
         </div>
         <div className="text-center w-40 relative flex flex-col items-center justify-end -mt-4">
           <div className="font-['Brush_Script_MT',cursive,'Caveat',serif] text-[15pt] text-slate-900 leading-none pb-1">
-            Samael Morningstar
+            {data.creatorName || "Authorized Mechanic"}
           </div>
           <div className="border-t border-black w-full text-[6.5pt] font-bold text-black pt-0.5 uppercase tracking-wide">
             Authorized Signatory

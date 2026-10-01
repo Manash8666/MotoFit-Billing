@@ -15,6 +15,16 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const [isPreview, setIsPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [currentUser, setCurrentUser] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('motofit_user');
+      if (userStr) {
+        try { setCurrentUser(JSON.parse(userStr)); } catch (e) {}
+      }
+    }
+  }, []);
   const [formData, setFormData] = useState({
     docNumber: "AUTO",
     date: new Date().toISOString().split("T")[0],
@@ -114,6 +124,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
       date: formData.date || new Date().toISOString().split("T")[0],
       customerName: formData.customerName || "Walk-in Customer",
       customerPhone: formData.customerPhone || "9999999999",
+      creatorName: currentUser?.name || "Authorized Mechanic",
       vehicleReg: formData.vehicleReg || "UNKNOWN",
       makeModel: formData.makeModel || "Unknown",
       runningKm: Number(formData.runningKm) || 0,
