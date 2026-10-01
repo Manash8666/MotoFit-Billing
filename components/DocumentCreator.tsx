@@ -16,7 +16,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [formData, setFormData] = useState({
-    docNumber: docType === "SOW_BILL" ? "MF2-PASS-01" : "MF2-EST-01",
+    docNumber: "AUTO",
     date: new Date().toISOString().split("T")[0],
     customerName: "",
     customerPhone: "",
@@ -110,7 +110,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const getInvoiceData = (): PrintableDocProps["data"] => {
     return {
       docType,
-      docNumber: formData.docNumber || (docType === "SOW_BILL" ? "MF2-PASS-01" : "MF2-EST-01"),
+      docNumber: formData.docNumber || "AUTO",
       date: formData.date || new Date().toISOString().split("T")[0],
       customerName: formData.customerName || "Walk-in Customer",
       customerPhone: formData.customerPhone || "9999999999",
@@ -266,12 +266,13 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
         <h3 className="text-xl font-bold mb-4 text-[#f04923]">Document Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-gray-400 mb-1">Doc Number</label>
+            <label className="block text-gray-400 mb-1">Doc Number (Type 'AUTO' for sync)</label>
             <input 
               type="text" 
-              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
+              placeholder="AUTO"
+              className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white placeholder-gray-500" 
               value={formData.docNumber} 
-              onChange={e => setFormData({...formData, docNumber: e.target.value})}
+              onChange={e => setFormData({...formData, docNumber: e.target.value.toUpperCase()})}
             />
           </div>
           <div>

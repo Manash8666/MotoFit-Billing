@@ -44,103 +44,129 @@ export async function POST(req: Request) {
       items: items
     });
 
-    // We use a Prisma Transaction to ensure absolute data integrity
-    const result = await prisma.$transaction(async (tx) => {
-      
-      // Upsert Customer
-      let customer = await tx.customer.upsert({
-        where: { phone: customerPhone },
-        update: { name: customerName },
-        create: { name: customerName, phone: customerPhone }
-      });
+    let finalDocNumber = docNumber;
+    let attempt = 0;
+    let result;
 
-      // Upsert Vehicle
-      let vehicle = await tx.vehicle.findUnique({
-        where: { regNumber: vehicleReg }
-      });
-      if (!vehicle) {
-        vehicle = await tx.vehicle.create({
-          data: {
-            regNumber: vehicleReg,
-            makeModel: makeModel || "Unknown",
-            runningKm: runningKm || 0,
-            customerId: customer.id
+    while (attempt < 5) {
+      try {
+        result = await prisma.$transaction(async (tx) => {
+          if (docNumber === "AUTO") {
+            const count = await tx.document.count({ where: { type: docType } });
+            const prefix = docType === "SOW_BILL" ? "MF2-PASS-" : "MF2-EST-";
+            // Format number to be at least 2 digits
+            const seq = (count + 1).toString().padStart(2, '0');
+            finalDocNumber = `${prefix}${seq}`;
           }
+
+          // Upsert Customer
+          let customer = await tx.customer.upsert({
+            where: { phone: customerPhone },
+            update: { name: customerName },
+            create: { name: customerName, phone: customerPhone }
+          });
+
+          // Upsert Vehicle
+          let vehicle = await tx.vehicle.findUnique({
+            where: { regNumber: vehicleReg }
+          });
+          if (!vehicle) {
+            vehicle = await tx.vehicle.create({
+              data: {
+                regNumber: vehicleReg,
+                makeModel: makeModel || "Unknown",
+                runningKm: runningKm || 0,
+                customerId: customer.id
+              }
+            });
+          }
+
+          // Get a default user (temporary until auth is fully integrated)
+          let defaultUser = await tx.user.findFirst({ where: { role: 'SUPER_ADMIN', deletedAt: null } });
+          if (!defaultUser) {
+            defaultUser = await tx.user.create({
+              data: {
+                name: "System Admin",
+                phone: "+910000000000",
+                pinHash: "0000",
+                role: "SUPER_ADMIN"
+              }
+            });
+          }
+
+          const initialStatus = docType === "SOW_BILL" ? "DRAFT" : "ESTIMATE_CREATED";
+
+          // Create Document
+          const document = await tx.document.create({
+            data: {
+              docNumber: finalDocNumber,
+              type: docType,
+              status: initialStatus,
+              date: new Date(date),
+              vehicleId: vehicle.id,
+              workTypeNote,
+              paymentMethod: docType === "SOW_BILL" ? paymentMethod : null,
+              subtotal: breakdown.subtotal,
+              mdrSurcharge: breakdown.mdrSurcharge,
+              finalTotal: breakdown.finalTotal,
+              createdById: defaultUser.id,
+              items: {
+                create: items.map((item: any, idx: number) => {
+                  const disc = item.mrpDiscount || 0;
+                  const netRate = item.rate * (1 - disc / 100);
+                  return {
+                    sortOrder: idx,
+                    sectionName: item.sectionName,
+                    title: item.title,
+                    description: item.description,
+                    quantity: item.quantity,
+                    qtyUnit: item.qtyUnit,
+                    rate: item.rate,
+                    mrpDiscount: item.mrpDiscount,
+                    amount: netRate * item.quantity
+                  };
+                })
+              }
+            },
+            include: {
+              items: true,
+              vehicle: { include: { customer: true } }
+            }
+          });
+
+          // Create highly secure Audit Log entry
+          await tx.auditLog.create({
+            data: {
+              userId: defaultUser.id,
+              action: "DOCUMENT_CREATED",
+              entityType: "Document",
+              entityId: document.id,
+              details: {
+                docNumber: finalDocNumber,
+                type: docType,
+                status: initialStatus,
+                total: breakdown.finalTotal
+              },
+              ipAddress: req.headers.get('x-forwarded-for') || "unknown"
+            }
+          });
+
+          return document;
         });
-      }
 
-      // Get a default user (temporary until auth is fully integrated)
-      let defaultUser = await tx.user.findFirst({ where: { role: 'SUPER_ADMIN', deletedAt: null } });
-      if (!defaultUser) {
-        defaultUser = await tx.user.create({
-          data: {
-            name: "System Admin",
-            phone: "+910000000000",
-            pinHash: "0000",
-            role: "SUPER_ADMIN"
-          }
-        });
-      }
+        // Break loop on success
+        break;
 
-      const initialStatus = docType === "SOW_BILL" ? "DRAFT" : "ESTIMATE_CREATED";
-
-      // Create Document
-      const document = await tx.document.create({
-        data: {
-          docNumber,
-          type: docType,
-          status: initialStatus,
-          date: new Date(date),
-          vehicleId: vehicle.id,
-          workTypeNote,
-          paymentMethod: docType === "SOW_BILL" ? paymentMethod : null,
-          subtotal: breakdown.subtotal,
-          mdrSurcharge: breakdown.mdrSurcharge,
-          finalTotal: breakdown.finalTotal,
-          createdById: defaultUser.id,
-          items: {
-            create: items.map((item: any, idx: number) => {
-              const disc = item.mrpDiscount || 0;
-              const netRate = item.rate * (1 - disc / 100);
-              return {
-                sortOrder: idx,
-                sectionName: item.sectionName,
-                title: item.title,
-                description: item.description,
-                quantity: item.quantity,
-                qtyUnit: item.qtyUnit,
-                rate: item.rate,
-                mrpDiscount: item.mrpDiscount,
-                amount: netRate * item.quantity
-              };
-            })
-          }
-        },
-        include: {
-          items: true,
-          vehicle: { include: { customer: true } }
+      } catch (error: any) {
+        if (error.code === 'P2002' && docNumber === "AUTO") {
+          // Unique constraint failed, meaning another phone generated this ID at the exact same millisecond. Retry!
+          attempt++;
+          if (attempt >= 5) throw new Error("System is too busy. Please try generating the bill again.");
+          continue;
         }
-      });
-
-      // Create highly secure Audit Log entry
-      await tx.auditLog.create({
-        data: {
-          userId: defaultUser.id,
-          action: "DOCUMENT_CREATED",
-          entityType: "Document",
-          entityId: document.id,
-          details: {
-            docNumber,
-            type: docType,
-            status: initialStatus,
-            total: breakdown.finalTotal
-          },
-          ipAddress: req.headers.get('x-forwarded-for') || "unknown"
-        }
-      });
-
-      return document;
-    });
+        throw error;
+      }
+    }
 
     return NextResponse.json({ success: true, document: result }, { status: 201 });
   } catch (error: any) {
