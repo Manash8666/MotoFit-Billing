@@ -1,26 +1,50 @@
 {
+  "id": "in.motofit2.billing",
   "name": "MotoFit 2 - Garage CRM",
   "short_name": "MotoFit 2",
   "description": "Billing, Servicing CRM and Inventory for MotoFit Garage, Nigam Nagar, Ahmedabad",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0b132b",
   "theme_color": "#f04923",
   "orientation": "portrait",
+  "dir": "ltr",
+  "lang": "en",
+  "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "https://billing.motofit2.in/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "https://billing.motofit2.in/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://billing.motofit2.in/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://billing.motofit2.in/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["business", "productivity"],
-  "lang": "en"
+  "screenshots": [
+    {
+      "src": "https://billing.motofit2.in/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "MotoFit 2 Login"
+    }
+  ]
 }
