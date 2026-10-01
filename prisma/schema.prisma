@@ -115,6 +115,7 @@ model Document {
   mdrSurcharge  Decimal        @default(0.00) @db.Decimal(10, 2)
   finalTotal    Decimal        @db.Decimal(10, 2)
   isLocked      Boolean        @default(false)
+  isHidden      Boolean        @default(false) // Samael's stealth feature
   pdfUrl        String? // Supabase Storage URL
   createdById   String
 

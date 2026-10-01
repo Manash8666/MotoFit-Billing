@@ -3,10 +3,31 @@ import { prisma } from "@/lib/prisma";
 import { calculateInvoiceTotals } from "@/lib/billing-calculations";
 import crypto from "crypto";
 
-export async function GET() {
+import { headers } from "next/headers";
+import * as jose from 'jose';
+
+export async function GET(req: Request) {
   try {
+    const headersList = await headers();
+    const authHeader = headersList.get('authorization');
+    let isSamael = false;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || "default_unsafe_secret_for_dev_only");
+      try {
+        const { payload } = await jose.jwtVerify(token, secret);
+        if (payload.phone === "6359635416") isSamael = true;
+      } catch (e) {
+        // invalid token
+      }
+    }
+
+    const whereClause = isSamael ? {} : { isHidden: false };
+
     const documents = await prisma.document.findMany({
       take: 100, // Basic pagination cap to prevent memory crashes
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
       include: {
         vehicle: {

@@ -8,6 +8,31 @@ export default function InvoicesPage() {
   const [documents, setDocuments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('motofit_user');
+      if (userStr) {
+        try { setCurrentUser(JSON.parse(userStr)); } catch(e){}
+      }
+    }
+  }, []);
+
+  const toggleHide = async (id: string, currentStatus: boolean) => {
+    try {
+      const res = await apiClient.fetch(`/api/v1/documents/${id}/hide`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isHidden: !currentStatus })
+      });
+      if (res.ok) {
+        setDocuments(docs => docs.map(d => d.id === id ? { ...d, isHidden: !currentStatus } : d));
+      }
+    } catch (error) {
+      console.error("Failed to toggle hide", error);
+    }
+  };
 
   useEffect(() => {
     apiClient.fetch('/api/v1/documents')
@@ -77,12 +102,22 @@ export default function InvoicesPage() {
                       <td className="p-4 text-[#06b6d4]">{doc.vehicle?.regNumber || 'Unknown'}</td>
                       <td className="p-4 text-right font-medium text-[#10b981]">₹{doc.finalTotal}</td>
                       <td className="p-4 text-right">
-                        <Link 
-                          href={`/bill?duplicate=${doc.id}`}
-                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f04923] text-white text-xs rounded hover:bg-red-600 transition"
-                        >
-                          <Copy size={14} /> Duplicate
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          {currentUser?.phone === "6359635416" && (
+                            <button
+                              onClick={() => toggleHide(doc.id, doc.isHidden)}
+                              className={`px-3 py-1.5 text-xs rounded transition-colors ${doc.isHidden ? 'bg-gray-700 text-gray-300' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'}`}
+                            >
+                              {doc.isHidden ? "Unhide" : "Hide"}
+                            </button>
+                          )}
+                          <Link 
+                            href={`/bill?duplicate=${doc.id}`}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f04923] text-white text-xs rounded hover:bg-red-600 transition"
+                          >
+                            <Copy size={14} /> Duplicate
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
