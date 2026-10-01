@@ -16,6 +16,7 @@ export async function GET() {
       name: c.name,
       phone: c.phone,
       vehicle: c.vehicles.length > 0 ? c.vehicles[0].makeModel : 'No Vehicle',
+      vehicles: c.vehicles,
       lastVisit: new Date(c.updatedAt).toLocaleDateString()
     }));
 

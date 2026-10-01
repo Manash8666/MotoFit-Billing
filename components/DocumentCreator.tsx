@@ -27,6 +27,17 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   });
 
   const [items, setItems] = useState<LineItem[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/v1/customers')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setCustomers(data);
+      })
+      .catch(console.error);
+  }, []);
 
   const handleAddRow = () => {
     setItems([
@@ -238,15 +249,45 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
               onChange={e => setFormData({...formData, customerName: e.target.value})}
             />
           </div>
-          <div>
+          <div className="relative">
             <label className="block text-gray-400 mb-1">Customer Phone</label>
             <input 
               type="text" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="+91 98765 43210"
               value={formData.customerPhone} 
-              onChange={e => setFormData({...formData, customerPhone: e.target.value})}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+              onChange={e => {
+                setFormData({...formData, customerPhone: e.target.value});
+                setShowDropdown(true);
+              }}
             />
+            {showDropdown && customers.length > 0 && formData.customerPhone.length > 2 && (
+              <div className="absolute z-50 w-full mt-1 bg-[#1a233a] border border-gray-700 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                {customers
+                  .filter(c => c.phone.includes(formData.customerPhone) || c.name.toLowerCase().includes(formData.customerPhone.toLowerCase()))
+                  .map(c => (
+                  <div 
+                    key={c.id} 
+                    className="p-3 hover:bg-white/10 cursor-pointer border-b border-gray-800 last:border-0"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        customerPhone: c.phone,
+                        customerName: c.name,
+                        makeModel: c.vehicles?.[0]?.makeModel || "",
+                        vehicleReg: c.vehicles?.[0]?.regNumber || ""
+                      });
+                      setShowDropdown(false);
+                    }}
+                  >
+                    <p className="text-white font-medium text-sm">{c.name} <span className="text-gray-400 text-xs ml-1">{c.phone}</span></p>
+                    {c.vehicles?.[0] && <p className="text-xs text-[#06b6d4] mt-1">{c.vehicles[0].makeModel} ({c.vehicles[0].regNumber})</p>}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-gray-400 mb-1">Vehicle Make & Model</label>
