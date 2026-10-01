@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Wrench, Phone, KeyRound, Loader2, AlertCircle } from "lucide-react";
+import { Phone, KeyRound, Loader2, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function LoginPage() {
     if (session) router.replace("/");
   }, [router]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -71,10 +71,11 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Phone */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Phone Number</label>
+              <label htmlFor="phoneInput" className="block text-sm text-gray-400 mb-1.5">Phone Number</label>
               <div className="relative">
                 <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input
+                  id="phoneInput"
                   type="tel"
                   required
                   value={phone}
@@ -87,10 +88,11 @@ export default function LoginPage() {
 
             {/* PIN */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Login PIN</label>
+              <label htmlFor="pinInput" className="block text-sm text-gray-400 mb-1.5">Login PIN</label>
               <div className="relative">
                 <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input
+                  id="pinInput"
                   type="password"
                   required
                   maxLength={4}

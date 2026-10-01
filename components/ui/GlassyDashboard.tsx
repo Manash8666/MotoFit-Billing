@@ -263,8 +263,8 @@ export default function GlassyDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {filtered.map((feature, idx) => (
-              <Link href={feature.link} key={idx} className="block group">
+            {filtered.map((feature) => (
+              <Link href={feature.link} key={feature.title} className="block group">
                 <motion.div
                   whileHover={{ scale: 1.04, y: -4 }}
                   whileTap={{ scale: 0.97 }}
