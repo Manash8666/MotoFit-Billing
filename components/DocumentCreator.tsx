@@ -35,6 +35,7 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
     let remainingQueue = [];
     for (const doc of queue) {
       try {
+        // eslint-disable-next-line no-await-in-loop
         await apiClient.post('/api/v1/documents', doc);
       } catch (err: any) {
         if (!err.status || err.status >= 500) {
@@ -56,7 +57,7 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
     if (typeof window !== 'undefined') {
       window.addEventListener('online', processOfflineQueue);
       // Try processing immediately in case they came online while page was loading
-      if (navigator.onLine) processOfflineQueue();
+      if (navigator.onLine) void processOfflineQueue();
       return () => window.removeEventListener('online', processOfflineQueue);
     }
   }, []);

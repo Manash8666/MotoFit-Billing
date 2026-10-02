@@ -24,7 +24,7 @@ export default function UsersPage() {
   const loadUsers = async () => {
     try {
       const data = await apiClient.get<{ users: User[] }>('/api/v1/users');
-      if (data && data.users) {
+      if (data?.users) {
         setUsers(data.users);
       }
     } catch (err) {
@@ -34,9 +34,9 @@ export default function UsersPage() {
     }
   };
 
-  useEffect(() => { loadUsers(); }, []);
+  useEffect(() => { void loadUsers(); }, []);
 
-  const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreate = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
@@ -45,7 +45,7 @@ export default function UsersPage() {
     try {
       await apiClient.post('/api/v1/users', { ...formData, pinHash: formData.pinHash || '0000' });
       setSuccess("User created successfully!");
-      loadUsers();
+      void loadUsers();
       setFormData({ name: "", phone: "", pinHash: "", role: "SENIOR_MECHANIC" });
       setTimeout(() => setSuccess(""), 3000);
     } catch (err: any) {
@@ -60,14 +60,14 @@ export default function UsersPage() {
     if (!confirm(`Remove "${name}" from staff? This cannot be undone.`)) return;
     try {
       await apiClient.delete('/api/v1/users', { body: JSON.stringify({ id }) });
-      loadUsers();
+      void loadUsers();
     } catch (err: any) {
       alert(err.data?.error || "Network error \u2014 failed to delete user");
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0b132b] text-white p-4 md:p-8" role="main">
+    <main className="min-h-screen bg-[#0b132b] text-white p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <header className="mb-8 flex items-center gap-4">
           <Link href="/" className="p-2 hover:bg-[#1a233a] rounded-full transition-colors focus:ring-2 focus:ring-[#06b6d4] outline-none" aria-label="Go back to Dashboard">
@@ -106,7 +106,7 @@ export default function UsersPage() {
               </div>
 
               {error && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/30 rounded p-2" role="alert">{error}</p>}
-              {success && <p className="text-green-400 text-sm bg-green-500/10 border border-green-500/30 rounded p-2" role="status">{success}</p>}
+              {success && <output className="block text-green-400 text-sm bg-green-500/10 border border-green-500/30 rounded p-2">{success}</output>}
 
               <button disabled={isSubmitting} type="submit" className="w-full py-3 mt-4 bg-[#06b6d4] hover:bg-cyan-600 focus:ring-2 focus:ring-cyan-300 outline-none text-white font-bold rounded transition shadow-lg shadow-cyan-500/20 disabled:opacity-50">
                 {isSubmitting ? "Creating..." : "Create Account"}
@@ -121,16 +121,16 @@ export default function UsersPage() {
             {(() => {
               if (loading) {
                 return (
-                  <div className="animate-pulse space-y-4" role="status" aria-label="Loading staff accounts">
+                  <output className="block animate-pulse space-y-4" aria-label="Loading staff accounts">
                     {[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-800 rounded-lg"></div>)}
-                  </div>
+                  </output>
                 );
               }
               if (users.length === 0) {
                 return (
-                  <div className="text-center py-12 text-gray-500 border-2 border-dashed border-gray-700 rounded-lg" role="status">
+                  <output className="block text-center py-12 text-gray-500 border-2 border-dashed border-gray-700 rounded-lg">
                     No users found. Create one to get started.
-                  </div>
+                  </output>
                 );
               }
               return (
@@ -160,6 +160,7 @@ export default function UsersPage() {
                               });
                               alert(`PIN for ${user.name} has been reset to 0000`);
                             } catch (err: any) {
+                              // We explicitly catch and alert here because this is a direct user action.
                               alert("Network error: failed to reset PIN");
                             }
                           }}
@@ -184,6 +185,6 @@ export default function UsersPage() {
           </section>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
