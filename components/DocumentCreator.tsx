@@ -80,30 +80,42 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
   const [activePartDropdown, setActivePartDropdown] = useState<string | null>(null);
   const [proofImage, setProofImage] = useState<string | null>(null);
 
-  const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
+    try {
       const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const scaleSize = MAX_WIDTH / img.width;
-        canvas.width = MAX_WIDTH;
-        canvas.height = img.height * scaleSize;
-        
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        // Compress to JPEG with 0.6 quality to keep Base64 string small
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-        setProofImage(compressedBase64);
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+      const objectUrl = URL.createObjectURL(file);
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = objectUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 800;
+      // Only scale down if the image is larger than MAX_WIDTH to avoid pixelating small images
+      const scaleSize = Math.min(1, MAX_WIDTH / img.width);
+      
+      canvas.width = img.width * scaleSize;
+      canvas.height = img.height * scaleSize;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error("Could not get canvas context");
+      
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      // Compress to JPEG with 0.6 quality to keep Base64 string small
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+      setProofImage(compressedBase64);
+      
+      URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      console.error("Image processing failed:", err);
+      alert("Failed to process the image. Please try again.");
+    }
   };
 
   React.useEffect(() => {
@@ -645,18 +657,34 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
             <Plus size={16} /> Add Line Item
           </button>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4" aria-live="polite">
             {proofImage && (
               <div className="relative w-16 h-16 border border-gray-600 rounded overflow-hidden">
-                <img src={proofImage} alt="Proof" className="w-full h-full object-cover" />
-                <button onClick={() => setProofImage(null)} className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl">
-                  <X size={12} />
+                <img src={proofImage} alt="Uploaded proof of spares" className="w-full h-full object-cover" />
+                <button 
+                  onClick={() => setProofImage(null)} 
+                  className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition-colors"
+                  aria-label="Remove uploaded proof photo"
+                >
+                  <X size={12} aria-hidden="true" />
                 </button>
               </div>
             )}
-            <label htmlFor="uploadProof" className="flex items-center gap-2 px-4 py-2 bg-[#8b5cf6] text-white rounded hover:bg-[#8b5cf6]/80 transition text-sm cursor-pointer shadow-lg shadow-[#8b5cf6]/20">
-              <Camera size={16} /> {proofImage ? "Change Photo" : "Upload Proof"}
-              <input id="uploadProof" type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageCapture} />
+            <label 
+              htmlFor="uploadProof" 
+              className="flex items-center gap-2 px-4 py-2 bg-[#8b5cf6] text-white rounded hover:bg-[#8b5cf6]/80 transition-colors text-sm cursor-pointer shadow-lg shadow-[#8b5cf6]/20 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-[#0b132b] focus-within:ring-[#8b5cf6]"
+            >
+              <Camera size={16} aria-hidden="true" /> 
+              <span>{proofImage ? "Change Photo" : "Upload Proof"}</span>
+              <input 
+                id="uploadProof" 
+                type="file" 
+                accept="image/*" 
+                capture="environment" 
+                className="sr-only" 
+                onChange={(e) => void handleImageCapture(e)} 
+                aria-label="Upload proof of spares photo"
+              />
             </label>
           </div>
         </div>
