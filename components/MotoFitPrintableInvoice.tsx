@@ -28,65 +28,139 @@ export interface PrintableDocProps {
   };
 }
 
+const InvoiceMetadata: React.FC<{ data: PrintableDocProps["data"] }> = ({ data }) => (
+  <div className="grid grid-cols-3 bg-[#f8fafc] border-y border-slate-200 py-1.5 px-2 mb-2">
+    <div>
+      <div className="text-[6.5pt] font-semibold text-slate-400 uppercase tracking-wide">
+        {data.docType === "SOW_BILL" ? "Customer Name" : "Vehicle Make & Model"}
+      </div>
+      <div className="text-[7.5pt] font-bold text-slate-900 mt-0.5">
+        {data.docType === "SOW_BILL" ? data.customerName : data.makeModel}
+      </div>
+      <div className="text-[7pt] text-slate-500">
+        {data.docType === "SOW_BILL" ? data.customerPhone : ""}
+      </div>
+    </div>
+    <div>
+      <div className="text-[6.5pt] font-semibold text-slate-400 uppercase tracking-wide">
+        {data.docType === "SOW_BILL" ? "Vehicle Make & Model" : "Registration / Status"}
+      </div>
+      <div className="text-[7.5pt] font-bold text-slate-900 mt-0.5">
+        {data.docType === "SOW_BILL" ? data.makeModel : <span className="text-[#f04923]">{data.vehicleReg}</span>}
+      </div>
+      <div className="text-[7pt] text-slate-500">
+        {data.docType === "SOW_BILL" ? <span className="text-[#f04923]">Reg: On Workshop Record</span> : "Initial Service Estimate"}
+      </div>
+    </div>
+    <div className="text-right">
+      <div className="text-[6.5pt] font-semibold text-slate-400 uppercase tracking-wide">
+        {data.docType === "SOW_BILL" ? "Invoice ID / Date" : "Estimate ID / Date"}
+      </div>
+      <div className="text-[7.5pt] font-bold text-slate-900 mt-0.5">
+        {data.docNumber}
+      </div>
+      <div className="text-[7pt] text-slate-500">
+        {new Date(data.date).toLocaleDateString("en-GB")}
+      </div>
+    </div>
+  </div>
+);
+
+const InvoiceItemsTable: React.FC<{ items: PrintableDocProps["data"]["items"] }> = ({ items }) => {
+  let lastSection = "";
+  const rows: React.ReactNode[] = [];
+  
+  items.forEach((item, idx) => {
+    if (item.sectionName && item.sectionName !== lastSection) {
+      rows.push(
+        <tr key={`sec-${item.id}`} className="bg-[#e2e8f0]">
+          <td colSpan={5} className="py-1 px-2 text-[7pt] font-bold text-slate-800 uppercase">
+            {item.sectionName}
+          </td>
+        </tr>
+      );
+      lastSection = item.sectionName;
+    }
+    
+    const disc = item.mrpDiscount || 0;
+    const netRate = Math.round(item.rate * (1 - disc / 100) * 100) / 100;
+    const lineTotal = Math.round(netRate * item.quantity * 100) / 100;
+    
+    let rateDisplay = item.rate.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    let amountDisplay = `₹ ${lineTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    
+    if (item.rate === 0) {
+      rateDisplay = "Complimentary / N/C";
+      amountDisplay = "0.00";
+    }
+
+    rows.push(
+      <tr key={item.id} className="border-b border-slate-200">
+        <td className="py-1.5 px-2 text-center text-slate-600 text-[7pt]">
+          {idx + 1}
+        </td>
+        <td className="py-1.5 px-2">
+          <div className="font-bold text-slate-900 text-[7.5pt]">{item.title}</div>
+          {item.description && (
+            <div className="text-slate-500 text-[6.5pt] leading-tight mt-0.5">{item.description}</div>
+          )}
+        </td>
+        <td className="py-1.5 px-2 text-center text-[7.5pt] text-slate-800">
+          {item.quantity} {item.qtyUnit !== 'Pcs' ? item.qtyUnit : ''}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[7.5pt] text-slate-800">
+          {rateDisplay}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[7.5pt] text-slate-800">
+          {amountDisplay}
+        </td>
+      </tr>
+    );
+  });
+  
+  return (
+    <table className="w-full border-collapse text-left mb-0">
+      <thead>
+        <tr className="bg-[#0b132b] text-white text-[7pt] uppercase">
+          <th className="py-1.5 px-2 text-center w-8">S.No.</th>
+          <th className="py-1.5 px-2">Service Item / Spare Part Description</th>
+          <th className="py-1.5 px-2 text-center w-12">Qty</th>
+          <th className="py-1.5 px-2 text-right w-24">Rate (₹)</th>
+          <th className="py-1.5 px-2 text-right w-28">Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows}
+      </tbody>
+    </table>
+  );
+};
+
+const InvoiceNotice: React.FC<{ data: PrintableDocProps["data"], totals: any }> = ({ data, totals }) => (
+  <div className="mt-4 border border-emerald-200 border-l-[4px] border-l-emerald-500 bg-[#f0fdf4] p-2 text-[7pt]">
+    <h4 className="font-bold text-emerald-800 uppercase mb-0.5">
+      {data.docType === "SOW_BILL" ? "BILLING NOTICE & TECHNICAL REMARK" : "INITIAL ESTIMATE & INSPECTION NOTICE"}
+    </h4>
+    <p className="text-emerald-900 leading-tight">
+      {data.docType === "SOW_BILL" ? (
+        <>
+          Scope of Work Bill generated for <strong>{data.customerName}'s {data.makeModel}</strong>. Total payable amount: <strong>₹ {totals.finalTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>. {data.workTypeNote || "Routine servicing and mechanical checks completed."} {totals.isMdrApplicable ? "Post-15 Oct 2026 MDR applied for UPI transaction." : "Standard base rate applied."}
+        </>
+      ) : (
+        <>
+          Scope of Work Initial Estimate prepared for <strong>{data.makeModel} ({data.vehicleReg})</strong>. Current confirmed items total: <strong>₹ {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>. {data.workTypeNote || "Front & rear disc brake pads and any ancillary adjustments identified during mechanical teardown will be evaluated along the way and added to the final invoice."} {totals.isMdrApplicable ? "Post-15 Oct 2026 MDR applied for UPI transaction." : "Standard base rate applied."}
+        </>
+      )}
+    </p>
+  </div>
+);
+
 export const MotoFitPrintableInvoice: React.FC<PrintableDocProps> = ({ data }) => {
   const totals = calculateInvoiceTotals({
     invoiceDate: data.date,
     paymentMethod: data.paymentMethod,
     items: data.items,
   });
-
-  const renderRows = () => {
-    let lastSection = "";
-    const rows: React.ReactNode[] = [];
-    data.items.forEach((item, idx) => {
-      if (item.sectionName && item.sectionName !== lastSection) {
-        rows.push(
-          <tr key={`sec-${idx}`} className="bg-[#e2e8f0]">
-            <td colSpan={5} className="py-1 px-2 text-[7pt] font-bold text-slate-800 uppercase">
-              {item.sectionName}
-            </td>
-          </tr>
-        );
-        lastSection = item.sectionName;
-      }
-      
-      const disc = item.mrpDiscount || 0;
-      const netRate = Math.round(item.rate * (1 - disc / 100) * 100) / 100;
-      const lineTotal = Math.round(netRate * item.quantity * 100) / 100;
-      
-      let rateDisplay = item.rate.toLocaleString('en-IN', { minimumFractionDigits: 2 });
-      let amountDisplay = `₹ ${lineTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-      
-      if (item.rate === 0) {
-        rateDisplay = "Complimentary / N/C";
-        amountDisplay = "0.00";
-      }
-
-      rows.push(
-        <tr key={item.id || idx} className="border-b border-slate-200">
-          <td className="py-1.5 px-2 text-center text-slate-600 text-[7pt]">
-            {idx + 1}
-          </td>
-          <td className="py-1.5 px-2">
-            <div className="font-bold text-slate-900 text-[7.5pt]">{item.title}</div>
-            {item.description && (
-              <div className="text-slate-500 text-[6.5pt] leading-tight mt-0.5">{item.description}</div>
-            )}
-          </td>
-          <td className="py-1.5 px-2 text-center text-[7.5pt] text-slate-800">
-            {item.quantity} {item.qtyUnit !== 'Pcs' ? item.qtyUnit : ''}
-          </td>
-          <td className="py-1.5 px-2 text-right text-[7.5pt] text-slate-800">
-            {rateDisplay}
-          </td>
-          <td className="py-1.5 px-2 text-right text-[7.5pt] text-slate-800">
-            {amountDisplay}
-          </td>
-        </tr>
-      );
-    });
-    return rows;
-  };
 
   return (
     <div className="motofit-a4-root font-sans text-slate-800 bg-white mx-auto">
@@ -125,58 +199,8 @@ export const MotoFitPrintableInvoice: React.FC<PrintableDocProps> = ({ data }) =
         </h2>
       </div>
 
-      {/* Metadata Row */}
-      <div className="grid grid-cols-3 bg-[#f8fafc] border-y border-slate-200 py-1.5 px-2 mb-2">
-        <div>
-          <div className="text-[6.5pt] font-semibold text-slate-400 uppercase tracking-wide">
-            {data.docType === "SOW_BILL" ? "Customer Name" : "Vehicle Make & Model"}
-          </div>
-          <div className="text-[7.5pt] font-bold text-slate-900 mt-0.5">
-            {data.docType === "SOW_BILL" ? data.customerName : data.makeModel}
-          </div>
-          <div className="text-[7pt] text-slate-500">
-            {data.docType === "SOW_BILL" ? data.customerPhone : ""}
-          </div>
-        </div>
-        <div>
-          <div className="text-[6.5pt] font-semibold text-slate-400 uppercase tracking-wide">
-            {data.docType === "SOW_BILL" ? "Vehicle Make & Model" : "Registration / Status"}
-          </div>
-          <div className="text-[7.5pt] font-bold text-slate-900 mt-0.5">
-            {data.docType === "SOW_BILL" ? data.makeModel : <span className="text-[#f04923]">{data.vehicleReg}</span>}
-          </div>
-          <div className="text-[7pt] text-slate-500">
-            {data.docType === "SOW_BILL" ? <span className="text-[#f04923]">Reg: On Workshop Record</span> : "Initial Service Estimate"}
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-[6.5pt] font-semibold text-slate-400 uppercase tracking-wide">
-            {data.docType === "SOW_BILL" ? "Invoice ID / Date" : "Estimate ID / Date"}
-          </div>
-          <div className="text-[7.5pt] font-bold text-slate-900 mt-0.5">
-            {data.docNumber}
-          </div>
-          <div className="text-[7pt] text-slate-500">
-            {new Date(data.date).toLocaleDateString("en-GB")}
-          </div>
-        </div>
-      </div>
-
-      {/* Table */}
-      <table className="w-full border-collapse text-left mb-0">
-        <thead>
-          <tr className="bg-[#0b132b] text-white text-[7pt] uppercase">
-            <th className="py-1.5 px-2 text-center w-8">S.No.</th>
-            <th className="py-1.5 px-2">Service Item / Spare Part Description</th>
-            <th className="py-1.5 px-2 text-center w-12">Qty</th>
-            <th className="py-1.5 px-2 text-right w-24">Rate (₹)</th>
-            <th className="py-1.5 px-2 text-right w-28">Amount (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {renderRows()}
-        </tbody>
-      </table>
+      <InvoiceMetadata data={data} />
+      <InvoiceItemsTable items={data.items} />
 
       {/* Subtotal & Total Block */}
       <div className="flex flex-col bg-[#f8fafc] text-[8pt]">
@@ -205,23 +229,7 @@ export const MotoFitPrintableInvoice: React.FC<PrintableDocProps> = ({ data }) =
         </div>
       </div>
 
-      {/* Notice Block */}
-      <div className="mt-4 border border-emerald-200 border-l-[4px] border-l-emerald-500 bg-[#f0fdf4] p-2 text-[7pt]">
-        <h4 className="font-bold text-emerald-800 uppercase mb-0.5">
-          {data.docType === "SOW_BILL" ? "BILLING NOTICE & TECHNICAL REMARK" : "INITIAL ESTIMATE & INSPECTION NOTICE"}
-        </h4>
-        <p className="text-emerald-900 leading-tight">
-          {data.docType === "SOW_BILL" ? (
-            <>
-              Scope of Work Bill generated for <strong>{data.customerName}'s {data.makeModel}</strong>. Total payable amount: <strong>₹ {totals.finalTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>. {data.workTypeNote || "Routine servicing and mechanical checks completed."} {totals.isMdrApplicable ? "Post-15 Oct 2026 MDR applied for UPI transaction." : "Standard base rate applied."}
-            </>
-          ) : (
-            <>
-              Scope of Work Initial Estimate prepared for <strong>{data.makeModel} ({data.vehicleReg})</strong>. Current confirmed items total: <strong>₹ {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>. {data.workTypeNote || "Front & rear disc brake pads and any ancillary adjustments identified during mechanical teardown will be evaluated along the way and added to the final invoice."} {totals.isMdrApplicable ? "Post-15 Oct 2026 MDR applied for UPI transaction." : "Standard base rate applied."}
-            </>
-          )}
-        </p>
-      </div>
+      <InvoiceNotice data={data} totals={totals} />
 
       {/* Contacts & Signatory */}
       <div className="mt-3 border border-slate-200 bg-[#f8fafc] flex justify-between p-2">

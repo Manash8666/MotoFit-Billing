@@ -11,7 +11,7 @@ interface DocumentCreatorProps {
   docType: "SOW_BILL" | "ESTIMATE";
 }
 
-export default function DocumentCreator({ docType }: DocumentCreatorProps) {
+export default function DocumentCreator({ docType }: Readonly<DocumentCreatorProps>) {
   const [isPreview, setIsPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -104,7 +104,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
             }));
             if (data.items && Array.isArray(data.items)) {
               setItems(data.items.map((i: any) => ({
-                id: Date.now().toString() + Math.random().toString(),
+                id: crypto.randomUUID(),
                 sectionName: i.sectionName || "",
                 title: i.title || "",
                 description: i.description || "",
@@ -124,8 +124,8 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
     setItems([
       ...items,
       {
-        id: Date.now().toString(),
-        sectionName: items.length > 0 ? items[items.length - 1].sectionName : "",
+        id: crypto.randomUUID(),
+        sectionName: items.at(-1)?.sectionName ?? "",
         title: "",
         description: "",
         quantity: 1,
@@ -226,7 +226,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
       const blob = pdf.output('blob');
       const file = new File([blob], `${formData.docNumber || 'MotoFit-Doc'}.pdf`, { type: 'application/pdf' });
       
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           title: `MotoFit Document ${formData.docNumber}`,
           text: `Here is your MotoFit document: ${formData.docNumber}`,
@@ -271,6 +271,12 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
     }
   };
 
+  const getSaveBtnText = () => {
+    if (saveSuccess) return "Saved!";
+    if (isSaving) return "Saving...";
+    return "Save to DB";
+  };
+
   if (isPreview) {
     return (
       <div className="flex flex-col items-center">
@@ -287,7 +293,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
               disabled={isSaving}
               className={`flex items-center justify-center gap-2 px-4 py-2 text-white rounded transition ${saveSuccess ? 'bg-green-500' : 'bg-blue-600 hover:bg-blue-500'} ${isSaving ? 'opacity-50 cursor-not-allowed' : ''} w-full sm:w-auto`}
             >
-              {saveSuccess ? "Saved!" : isSaving ? "Saving..." : "Save to DB"}
+              {getSaveBtnText()}
             </button>
             <button 
               onClick={handleShareWhatsApp}
@@ -321,8 +327,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
         <h3 className="text-xl font-bold mb-4 text-[#f04923]">Document Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-gray-400 mb-1">Doc Number (Type 'AUTO' for sync)</label>
+            <label htmlFor="docNumber" className="block text-gray-400 mb-1">Doc Number (Type 'AUTO' for sync)</label>
             <input 
+              id="docNumber"
               type="text" 
               placeholder="AUTO"
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white placeholder-gray-500" 
@@ -331,8 +338,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
             />
           </div>
           <div>
-            <label className="block text-gray-400 mb-1">Date</label>
+            <label htmlFor="date" className="block text-gray-400 mb-1">Date</label>
             <input 
+              id="date"
               type="date" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               value={formData.date} 
@@ -340,8 +348,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
             />
           </div>
           <div>
-            <label className="block text-gray-400 mb-1">Customer Name</label>
+            <label htmlFor="customerName" className="block text-gray-400 mb-1">Customer Name</label>
             <input 
+              id="customerName"
               type="text" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="e.g. Dharamveer Sir"
@@ -350,8 +359,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
             />
           </div>
           <div className="relative">
-            <label className="block text-gray-400 mb-1">Customer Phone</label>
+            <label htmlFor="customerPhone" className="block text-gray-400 mb-1">Customer Phone</label>
             <input 
+              id="customerPhone"
               type="text" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="+91 98765 43210"
@@ -368,9 +378,10 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                 {customers
                   .filter(c => c.phone.includes(formData.customerPhone) || c.name.toLowerCase().includes(formData.customerPhone.toLowerCase()))
                   .map(c => (
-                  <div 
+                  <button 
+                    type="button"
                     key={c.id} 
-                    className="p-3 hover:bg-white/10 cursor-pointer border-b border-gray-800 last:border-0"
+                    className="w-full text-left p-3 hover:bg-white/10 cursor-pointer border-b border-gray-800 last:border-0"
                     onClick={() => {
                       setFormData({
                         ...formData,
@@ -384,14 +395,15 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                   >
                     <p className="text-white font-medium text-sm">{c.name} <span className="text-gray-400 text-xs ml-1">{c.phone}</span></p>
                     {c.vehicles?.[0] && <p className="text-xs text-[#06b6d4] mt-1">{c.vehicles[0].makeModel} ({c.vehicles[0].regNumber})</p>}
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </div>
           <div>
-            <label className="block text-gray-400 mb-1">Vehicle Make & Model</label>
+            <label htmlFor="makeModel" className="block text-gray-400 mb-1">Vehicle Make & Model</label>
             <input 
+              id="makeModel"
               type="text" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="e.g. Hero Passion Pro APDV"
@@ -400,8 +412,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
             />
           </div>
           <div>
-            <label className="block text-gray-400 mb-1">Registration Number</label>
+            <label htmlFor="vehicleReg" className="block text-gray-400 mb-1">Registration Number</label>
             <input 
+              id="vehicleReg"
               type="text" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="e.g. GJ 01 VP 8363"
@@ -417,8 +430,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
             />
           </div>
           <div>
-            <label className="block text-gray-400 mb-1">Odometer (KM)</label>
+            <label htmlFor="runningKm" className="block text-gray-400 mb-1">Odometer (KM)</label>
             <input 
+              id="runningKm"
               type="number" inputMode="decimal" pattern="[0-9]*" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="e.g. 12500"
@@ -427,8 +441,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
             />
           </div>
           <div className="md:col-span-1">
-            <label className="block text-gray-400 mb-1">Payment Method</label>
+            <label htmlFor="paymentMethod" className="block text-gray-400 mb-1">Payment Method</label>
             <select
+              id="paymentMethod"
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white"
               value={formData.paymentMethod}
               onChange={e => setFormData({...formData, paymentMethod: e.target.value as any})}
@@ -439,8 +454,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-gray-400 mb-1">Bottom Billing Notice / Remark</label>
+            <label htmlFor="workTypeNote" className="block text-gray-400 mb-1">Bottom Billing Notice / Remark</label>
             <input 
+              id="workTypeNote"
               type="text" 
               className="w-full bg-[#0b132b] border border-gray-700 rounded p-2 text-white" 
               placeholder="e.g. Chain tensioned & lubricated today..."
@@ -467,8 +483,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-8">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Section Heading (Optional)</label>
+                  <label htmlFor={`sectionName-${item.id}`} className="block text-xs text-gray-500 mb-1">Section Heading (Optional)</label>
                   <input 
+                    id={`sectionName-${item.id}`}
                     type="text" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     placeholder="e.g. ROUTINE MAINTENANCE"
@@ -477,8 +494,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                   />
                 </div>
                 <div className="relative">
-                  <label className="block text-xs text-gray-500 mb-1">Item Title</label>
+                  <label htmlFor={`title-${item.id}`} className="block text-xs text-gray-500 mb-1">Item Title</label>
                   <input 
+                    id={`title-${item.id}`}
                     type="text" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     placeholder="e.g. Engine Oil Motul"
@@ -493,11 +511,12 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                   {activePartDropdown === item.id && parts.length > 0 && item.title.length > 1 && (
                     <div className="absolute z-50 w-full mt-1 bg-[#0b132b] border border-gray-700 rounded-lg shadow-2xl max-h-48 overflow-y-auto">
                       {parts
-                        .filter(p => p.name.toLowerCase().includes(item.title.toLowerCase()) || (p.category && p.category.toLowerCase().includes(item.title.toLowerCase())))
+                        .filter(p => p.name.toLowerCase().includes(item.title.toLowerCase()) || p.category?.toLowerCase().includes(item.title.toLowerCase()))
                         .map(p => (
-                        <div 
+                        <button 
+                          type="button"
                           key={p.id} 
-                          className="p-3 hover:bg-white/10 cursor-pointer border-b border-gray-800 last:border-0"
+                          className="w-full text-left p-3 hover:bg-white/10 cursor-pointer border-b border-gray-800 last:border-0"
                           onClick={() => {
                             setItems(items.map(i => i.id === item.id ? { 
                               ...i, 
@@ -513,14 +532,15 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                             <span className="text-xs text-[#06b6d4]">{p.category || 'General'}</span>
                             <span className="text-xs text-green-400 font-mono">₹{p.price}</span>
                           </div>
-                        </div>
+                        </button>
                       ))}
                     </div>
                   )}
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs text-gray-500 mb-1">Description (Optional)</label>
+                  <label htmlFor={`desc-${item.id}`} className="block text-xs text-gray-500 mb-1">Description (Optional)</label>
                   <input 
+                    id={`desc-${item.id}`}
                     type="text" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     placeholder="e.g. Motul semi-synthetic 4T..."
@@ -532,8 +552,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pr-8 mt-3">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Qty</label>
+                  <label htmlFor={`qty-${item.id}`} className="block text-xs text-gray-500 mb-1">Qty</label>
                   <input 
+                    id={`qty-${item.id}`}
                     type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     value={item.quantity} 
@@ -541,8 +562,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Unit</label>
+                  <label htmlFor={`unit-${item.id}`} className="block text-xs text-gray-500 mb-1">Unit</label>
                   <input 
+                    id={`unit-${item.id}`}
                     type="text" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     value={item.qtyUnit || ""} 
@@ -550,8 +572,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Rate (₹)</label>
+                  <label htmlFor={`rate-${item.id}`} className="block text-xs text-gray-500 mb-1">Rate (₹)</label>
                   <input 
+                    id={`rate-${item.id}`}
                     type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full bg-[#1a233a] border border-gray-700 rounded p-1.5 text-white" 
                     value={item.rate} 
@@ -559,7 +582,7 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Total (₹)</label>
+                  <div className="block text-xs text-gray-500 mb-1">Total (₹)</div>
                   <div className="w-full bg-gray-800 border border-gray-700 rounded p-1.5 text-white font-mono flex items-center h-[34px]">
                     {Number(item.quantity) * Number(item.rate)}
                   </div>
@@ -586,9 +609,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
                 </button>
               </div>
             )}
-            <label className="flex items-center gap-2 px-4 py-2 bg-[#8b5cf6] text-white rounded hover:bg-[#8b5cf6]/80 transition text-sm cursor-pointer shadow-lg shadow-[#8b5cf6]/20">
+            <label htmlFor="uploadProof" className="flex items-center gap-2 px-4 py-2 bg-[#8b5cf6] text-white rounded hover:bg-[#8b5cf6]/80 transition text-sm cursor-pointer shadow-lg shadow-[#8b5cf6]/20">
               <Camera size={16} /> {proofImage ? "Change Photo" : "Upload Proof"}
-              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageCapture} />
+              <input id="uploadProof" type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageCapture} />
             </label>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { Home, Search, Plus, MessageCircle, User } from 'lucide-react';
+import { MotoFitLogo } from './MotoFitLogo';
 import './DarkNavBar.css';
 
 function DarkNavBar() {
@@ -51,18 +52,28 @@ function DarkNavBar() {
   return (
     <div className="dark-nav-wrapper">
       {/* Search Frame Overlay - Outside nav so it's not clipped */}
-      <div className={`dark-search-container ${isSearching ? 'open' : ''}`}>
-        <div className="dark-search-bg"></div>
+      <div 
+        className={`dark-search-container ${isSearching ? 'open' : ''}`} 
+        role="dialog" 
+        aria-modal="true" 
+        aria-label="Search Menu"
+        aria-hidden={!isSearching}
+      >
+        <div className="dark-search-bg" aria-hidden="true"></div>
         <div className="dark-search-content">
-          <Search className="dark-flying-icon" size={22} strokeWidth={2.5} />
+          <div className="mr-3">
+            <MotoFitLogo size={26} glow={isSearching} className="dark-flying-icon" />
+          </div>
           <input
             type="text"
             className="dark-search-input"
             placeholder="Search anything..."
+            aria-label="Search Input Box"
             autoFocus={isSearching}
           />
           <button
             className="dark-search-close"
+            aria-label="Close Search"
             onClick={(e) => {
               e.stopPropagation();
               setActiveTab('home');
@@ -119,17 +130,20 @@ function DarkNavBar() {
             data-id={item.id}
             className={`dark-nav-item ${isActive ? 'active' : ''}`}
             onClick={() => setActiveTab(item.id)}
+            aria-label={`${item.label} Navigation Tab`}
+            aria-current={isActive ? 'page' : undefined}
           >
             <div className={`dark-icon-container ${item.id === 'search' && isSearching ? 'hide-icon' : ''}`}>
               <Icon
                 size={22}
                 strokeWidth={isActive ? 2.5 : 2}
                 fill={isActive && item.id === 'home' ? 'currentColor' : 'none'}
+                aria-hidden="true"
               />
-              {item.hasNotification && <span className="dark-notification-dot" />}
+              {item.hasNotification && <span className="dark-notification-dot" aria-hidden="true" />}
             </div>
-            <div className={`dark-active-dot ${isActive ? 'visible' : ''}`} />
-            <span className="dark-nav-label">{item.label}</span>
+            <div className={`dark-active-dot ${isActive ? 'visible' : ''}`} aria-hidden="true" />
+            <span className="dark-nav-label" aria-hidden={!isActive}>{item.label}</span>
           </button>
         );
       })}
