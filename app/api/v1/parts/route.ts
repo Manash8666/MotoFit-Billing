@@ -25,8 +25,8 @@ export async function POST(req: Request) {
       data: {
         name,
         category: category || "",
-        price: parseFloat(price.toString().replace(/[^0-9.-]+/g, "")) || 0.00,
-        stock: parseInt(stock) || 0
+        price: Number.parseFloat(price.toString().replace(/[^0-9.-]+/g, "")) || 0.00,
+        stock: Number.parseInt(stock) || 0
       }
     });
 

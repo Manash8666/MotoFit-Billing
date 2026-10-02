@@ -141,13 +141,29 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const [isExporting, setIsExporting] = useState(false);
 
   const generatePDF = async () => {
+    // Polyfill for main window.scrollTo in case the TWA wrapper removed it
+    if (typeof window !== 'undefined' && typeof window.scrollTo !== 'function') {
+      window.scrollTo = () => {};
+    }
+
     const { default: html2canvas } = await import('html2canvas');
     const { jsPDF } = await import('jspdf');
 
     const element = document.getElementById('printable-invoice');
     if (!element) return null;
     
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    const canvas = await html2canvas(element, { 
+      scale: 2, 
+      useCORS: true, 
+      backgroundColor: '#ffffff',
+      onclone: (clonedDoc) => {
+        // Fix for TWA/WebView throwing "window.scrollTo is not a function" in the cloned iframe
+        const clonedWindow = clonedDoc.defaultView;
+        if (clonedWindow && typeof clonedWindow.scrollTo !== 'function') {
+          clonedWindow.scrollTo = () => {};
+        }
+      }
+    });
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
     
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -165,9 +181,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
       if (pdf) {
         pdf.save(`${formData.docNumber || 'MotoFit-Doc'}.pdf`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Failed to generate PDF");
+      alert("Failed to generate PDF: " + (error?.message || JSON.stringify(error)));
     } finally {
       setIsExporting(false);
     }
@@ -193,9 +209,9 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
         const text = encodeURIComponent(`Hello ${formData.customerName}, your MotoFit document ${formData.docNumber} is ready.`);
         window.open(`https://wa.me/?text=${text}`, '_blank');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Failed to share via WhatsApp. You can download the PDF and share manually.");
+      alert("Failed to share via WhatsApp: " + (error?.message || JSON.stringify(error)));
     } finally {
       setIsExporting(false);
     }

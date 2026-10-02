@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('node:fs');
 let data = fs.readFileSync('app/settings/page.tsx', 'utf8');
 
 // Replace all defaultValue="..." with defaultValue=""

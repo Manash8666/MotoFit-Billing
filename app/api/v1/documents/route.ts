@@ -173,7 +173,7 @@ export async function POST(req: Request) {
           });
 
           return document;
-        });
+        }, { maxWait: 10000, timeout: 30000 });
 
         // Break loop on success
         break;

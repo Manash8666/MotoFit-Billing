@@ -1,7 +1,7 @@
 'use client';
 import { apiClient } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings, Plus, Search, Box, X } from 'lucide-react';
+import { ArrowLeft, Settings, Plus, Search, Box, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PartsPage() {
@@ -51,6 +51,23 @@ export default function PartsPage() {
       }
     } catch (err) {
       alert("Failed to save part (Network error)");
+    }
+  };
+
+  const handleDeletePart = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this part?")) return;
+    try {
+      const res = await apiClient.fetch(`/api/v1/parts/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setParts(parts.filter(p => p.id !== id));
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to delete part");
+      }
+    } catch (err) {
+      alert("Failed to delete part (Network error)");
     }
   };
 
@@ -133,14 +150,24 @@ export default function PartsPage() {
                     <th className="p-4 text-gray-400 font-medium">Part/Vehicle Name</th>
                     <th className="p-4 text-gray-400 font-medium">Category</th>
                     <th className="p-4 text-gray-400 font-medium text-right">Price</th>
+                    <th className="p-4 text-gray-400 font-medium text-center w-16">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredParts.slice(0, 50).map((part, i) => (
-                    <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <tr key={part.id || i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="p-4 font-medium text-white">{part.name || part.model || 'Unknown Part'}</td>
                       <td className="p-4 text-gray-400">{part.category || part.brand || 'General'}</td>
                       <td className="p-4 text-right font-medium text-[#8b5cf6]">{part.price ? `₹${part.price}` : 'N/A'}</td>
+                      <td className="p-4 text-center">
+                        <button 
+                          onClick={() => handleDeletePart(part.id)}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          title="Delete part"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
