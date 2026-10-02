@@ -25,6 +25,41 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
       }
     }
   }, []);
+
+  // Offline-First Sync Processor (O(N) queue drain with exponential backoff via apiClient)
+  const processOfflineQueue = async () => {
+    if (typeof window === 'undefined') return;
+    const queue = JSON.parse(localStorage.getItem('motofit_offline_queue') || '[]');
+    if (queue.length === 0) return;
+    
+    let remainingQueue = [];
+    for (const doc of queue) {
+      try {
+        await apiClient.post('/api/v1/documents', doc);
+      } catch (err: any) {
+        if (!err.status || err.status >= 500) {
+          // Network failure, keep in queue
+          remainingQueue.push(doc);
+        } else {
+          console.error("Unrecoverable error syncing offline doc", err);
+        }
+      }
+    }
+    
+    localStorage.setItem('motofit_offline_queue', JSON.stringify(remainingQueue));
+    if (remainingQueue.length === 0 && queue.length > 0) {
+      alert("All offline documents synced successfully!");
+    }
+  };
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', processOfflineQueue);
+      // Try processing immediately in case they came online while page was loading
+      if (navigator.onLine) processOfflineQueue();
+      return () => window.removeEventListener('online', processOfflineQueue);
+    }
+  }, []);
   const [formData, setFormData] = useState({
     docNumber: "AUTO",
     date: new Date().toISOString().split("T")[0],
@@ -249,23 +284,32 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
     setIsSaving(true);
     setSaveSuccess(false);
     
+    const payload = getInvoiceData();
+
     try {
-      const response = await apiClient.fetch('/api/v1/documents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(getInvoiceData())
-      });
-      
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Failed to save document');
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error("OFFLINE");
       }
       
+      await apiClient.post('/api/v1/documents', payload);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (error) {
-      console.error("Error saving document:", error);
-      alert("Failed to save to database: " + (error as Error).message);
+      
+    } catch (error: any) {
+      const isNetworkIssue = error.message === "OFFLINE" || (!error.status || error.status >= 500);
+      
+      if (isNetworkIssue && typeof window !== 'undefined') {
+        const queue = JSON.parse(localStorage.getItem('motofit_offline_queue') || '[]');
+        queue.push(payload);
+        localStorage.setItem('motofit_offline_queue', JSON.stringify(queue));
+        
+        alert("You are offline. Document saved locally and will auto-sync when internet is restored.");
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        console.error("Error saving document:", error);
+        alert("Failed to save to database: " + (error.data?.error || error.message));
+      }
     } finally {
       setIsSaving(false);
     }
