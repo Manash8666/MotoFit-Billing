@@ -19,6 +19,7 @@ export async function GET(
     include: {
       customer: { select: { name: true, phone: true } },
       documents: {
+        where: { isHidden: false },
         orderBy: { date: "desc" },
         include: { items: true },
       },
