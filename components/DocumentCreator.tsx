@@ -3,7 +3,7 @@ import { apiClient } from '@/lib/api-client';
 
 import React, { useState } from "react";
 import { MotoFitPrintableInvoice, PrintableDocProps } from "@/components/MotoFitPrintableInvoice";
-import { Plus, Trash2, Eye, Edit2, Download, Share2 } from "lucide-react";
+import { Plus, Trash2, Eye, Edit2, Download, Share2, Camera, X } from "lucide-react";
 
 type LineItem = PrintableDocProps["data"]["items"][0];
 
@@ -42,6 +42,33 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
   const [parts, setParts] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [activePartDropdown, setActivePartDropdown] = useState<string | null>(null);
+  const [proofImage, setProofImage] = useState<string | null>(null);
+
+  const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const scaleSize = MAX_WIDTH / img.width;
+        canvas.width = MAX_WIDTH;
+        canvas.height = img.height * scaleSize;
+        
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Compress to JPEG with 0.6 quality to keep Base64 string small
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+        setProofImage(compressedBase64);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   React.useEffect(() => {
     apiClient.fetch('/api/v1/customers')
@@ -134,7 +161,8 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
         ...item,
         quantity: Number(item.quantity) || 1,
         rate: Number(item.rate) || 0
-      }))
+      })),
+      proofImage: proofImage || undefined
     };
   };
 
@@ -541,12 +569,29 @@ export default function DocumentCreator({ docType }: DocumentCreatorProps) {
           ))}
         </div>
 
-        <button 
-          onClick={handleAddRow}
-          className="mt-4 flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition text-sm"
-        >
-          <Plus size={16} /> Add Line Item
-        </button>
+        <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <button 
+            onClick={handleAddRow}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition text-sm"
+          >
+            <Plus size={16} /> Add Line Item
+          </button>
+
+          <div className="flex items-center gap-4">
+            {proofImage && (
+              <div className="relative w-16 h-16 border border-gray-600 rounded overflow-hidden">
+                <img src={proofImage} alt="Proof" className="w-full h-full object-cover" />
+                <button onClick={() => setProofImage(null)} className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl">
+                  <X size={12} />
+                </button>
+              </div>
+            )}
+            <label className="flex items-center gap-2 px-4 py-2 bg-[#8b5cf6] text-white rounded hover:bg-[#8b5cf6]/80 transition text-sm cursor-pointer shadow-lg shadow-[#8b5cf6]/20">
+              <Camera size={16} /> {proofImage ? "Change Photo" : "Upload Proof"}
+              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageCapture} />
+            </label>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-end">

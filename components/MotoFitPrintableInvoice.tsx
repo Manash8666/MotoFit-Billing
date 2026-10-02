@@ -24,6 +24,7 @@ export interface PrintableDocProps {
       rate: number;
       mrpDiscount?: number;
     }>;
+    proofImage?: string;
   };
 }
 
@@ -238,8 +239,18 @@ export const MotoFitPrintableInvoice: React.FC<PrintableDocProps> = ({ data }) =
         </div>
       </div>
 
+      {/* Proof of Spares Image */}
+      {data.proofImage && (
+        <div className="mt-4 border border-slate-200 p-2 break-inside-avoid">
+          <div className="font-bold uppercase text-[7.5pt] mb-2 text-slate-800">Proof of Spares / Visual Documentation</div>
+          <div className="flex justify-center">
+            <img src={data.proofImage} alt="Spares Proof" className="max-w-full max-h-[300px] object-contain rounded border border-slate-100" />
+          </div>
+        </div>
+      )}
+
       {/* Footer Text */}
-      <div className="text-center text-[6pt] text-slate-400 mt-2">
+      <div className="text-center text-[6pt] text-slate-400 mt-2 pb-2">
         MotoFit 2 | General Maintenance & Precision Servicing | Nigam Nagar HQ, Ahmedabad<br/>
         Thank you for {data.docType === "SOW_BILL" ? "servicing with" : "trusting"} MotoFit 2! Electronically generated {data.docType === "SOW_BILL" ? "document" : "estimate"}.
       </div>

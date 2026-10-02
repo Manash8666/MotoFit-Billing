@@ -51,7 +51,8 @@ export async function POST(req: Request) {
       docType, docNumber, date, 
       customerName, customerPhone, 
       vehicleReg, makeModel, runningKm, 
-      workTypeNote, paymentMethod, items 
+      workTypeNote, paymentMethod, items,
+      proofImage 
     } = body;
 
     if (!docNumber || !vehicleReg || !customerPhone || !customerName) {
@@ -131,6 +132,7 @@ export async function POST(req: Request) {
               mdrSurcharge: breakdown.mdrSurcharge,
               finalTotal: breakdown.finalTotal,
               createdById: defaultUser.id,
+              proofImage: proofImage || null,
               items: {
                 create: items.map((item: any, idx: number) => {
                   const disc = item.mrpDiscount || 0;

@@ -117,6 +117,7 @@ model Document {
   isLocked      Boolean        @default(false)
   isHidden      Boolean        @default(false) // Samael's stealth feature
   pdfUrl        String? // Supabase Storage URL
+  proofImage    String? @db.Text // Base64 image captured from mobile for spare parts proof
   createdById   String
 
   // Security / Anti-Tamper
