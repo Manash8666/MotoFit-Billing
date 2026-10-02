@@ -160,7 +160,7 @@ export default function UsersPage() {
                               });
                               alert(`PIN for ${user.name} has been reset to 0000`);
                             } catch (err: any) {
-                              // We explicitly catch and alert here because this is a direct user action.
+                              console.error("Failed to reset PIN:", err);
                               alert("Network error: failed to reset PIN");
                             }
                           }}
