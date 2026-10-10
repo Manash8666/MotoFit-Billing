@@ -252,7 +252,25 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
     try {
       const pdf = await generatePDF();
       if (pdf) {
-        pdf.save(`${formData.docNumber || 'MotoFit-Doc'}.pdf`);
+        const filename = `${formData.docNumber || 'MotoFit-Doc'}.pdf`;
+        const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+        
+        // In Android WebViews/TWAs, standard <a> tag downloads often fail silently.
+        // Web Share API is the most robust way to let the user save the file to Drive/Local Storage.
+        if (isAndroid && typeof navigator !== 'undefined' && navigator.share) {
+          const blob = pdf.output('blob');
+          const file = new File([blob], filename, { type: 'application/pdf' });
+          if (navigator.canShare?.({ files: [file] })) {
+            await navigator.share({
+              title: filename,
+              files: [file]
+            });
+            return;
+          }
+        }
+        
+        // Fallback for Desktop or if Share API is unsupported
+        pdf.save(filename);
       }
     } catch (error: any) {
       console.error(error);
