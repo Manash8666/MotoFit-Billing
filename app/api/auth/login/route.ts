@@ -35,22 +35,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "This account has been deactivated" }, { status: 403 });
     }
 
-    // Since earlier PINs were stored in plaintext, we need a fallback for the transition period.
-    // If it starts with $2a$ or $2b$, it's bcrypt. Otherwise it's plaintext.
-    const isBcryptHash = user.pinHash.startsWith("$2a$") || user.pinHash.startsWith("$2b$");
-    
-    let isPinValid = false;
-    let newHashToSave: string | null = null;
-
-    if (isBcryptHash) {
-      isPinValid = await bcrypt.compare(pin.trim(), user.pinHash);
-    } else {
-      isPinValid = user.pinHash === pin.trim();
-      // Auto-migrate plaintext to bcrypt on successful login
-      if (isPinValid) {
-        newHashToSave = await bcrypt.hash(pin.trim(), 10);
-      }
-    }
+    const isPinValid = await bcrypt.compare(pin.trim(), user.pinHash);
 
     if (!isPinValid) {
       const updatedUser = await prisma.user.update({
@@ -70,7 +55,6 @@ export async function POST(req: Request) {
 
     const updateData: any = { lastLogin: new Date() };
     if (user.failedAttempts > 0) updateData.failedAttempts = 0;
-    if (newHashToSave) updateData.pinHash = newHashToSave;
 
     await prisma.user.update({
       where: { id: user.id },
