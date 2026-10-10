@@ -18,8 +18,8 @@ export default function FinancialDashboardPage() {
         data.forEach(t => {
           const raw = t.amount ? t.amount.toString().replace(/[^0-9.-]+/g, "") : "0";
           const val = parseFloat(raw) || 0;
-          if (t.type === 'Income') rev += val;
-          if (t.type === 'Expense') exp += val;
+          if (t.type === 'CREDIT') rev += val;
+          if (t.type === 'EXPENSE' || t.type === 'DEBIT') exp += val;
         });
         setRevenue(rev);
         setExpenses(exp);
@@ -83,7 +83,7 @@ export default function FinancialDashboardPage() {
               <h3 className="text-xl font-semibold">Net Profit</h3>
             </div>
             <p className="text-4xl font-bold">₹{netProfit.toLocaleString('en-IN')}</p>
-            <p className="text-sm text-gray-400 mt-2">This Month</p>
+            <p className="text-sm text-gray-400 mt-2">All Time</p>
           </div>
         </div>
 

@@ -14,10 +14,11 @@ export async function GET(req: Request) {
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET || "default_unsafe_secret_for_dev_only");
+      if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is missing");
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       try {
         const { payload } = await jose.jwtVerify(token, secret);
-        if (payload.phone === "6359635416") isSamael = true;
+        if (payload.role === "SUPER_ADMIN") isSamael = true;
       } catch (e) {
         // invalid token
       }
