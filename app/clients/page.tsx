@@ -107,6 +107,75 @@ export default function ClientsPage() {
     }
   };
 
+  const renderClientsContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-20 text-gray-400 gap-2">
+          <Loader2 size={24} className="animate-spin text-[#10b981]" />
+          <span>Loading clients...</span>
+        </div>
+      );
+    }
+
+    if (filteredClients.length === 0) {
+      return (
+        <div className="text-center py-20 opacity-50">
+          <Users size={64} className="mx-auto mb-4 text-[#10b981]" />
+          <p className="text-xl">No clients found matching &quot;{searchQuery}&quot;</p>
+          <p className="text-sm mt-2">Try a different search term or add a new client.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-white/10">
+              <th className="p-4 text-gray-400 font-medium">Name</th>
+              <th className="p-4 text-gray-400 font-medium">Phone</th>
+              <th className="p-4 text-gray-400 font-medium">Vehicle</th>
+              <th className="p-4 text-gray-400 font-medium text-right">Last Visit</th>
+              <th className="p-4 text-gray-400 font-medium text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredClients.map((client) => (
+              <tr key={client.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                <td className="p-4 font-medium text-white">{client.name}</td>
+                <td className="p-4 text-gray-400">{client.phone}</td>
+                <td className="p-4 text-gray-400">{client.vehicle}</td>
+                <td className="p-4 text-right font-medium text-[#10b981]">{client.lastVisit}</td>
+                <td className="p-4 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <button 
+                      onClick={() => handleGenerateStatement(client)}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs rounded hover:bg-blue-500/20 transition"
+                    >
+                      <FileText size={14} /> Statement
+                    </button>
+                    <a 
+                      href={`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                        isDueForService(client.rawLastVisit) 
+                          ? `Hi ${client.name}, it has been over 3 months since your ${client.vehicle} was serviced. Please book an appointment with MotoFit for a routine checkup to maintain optimal performance!` 
+                          : `Hi ${client.name}, your vehicle (${client.vehicle}) servicing is complete and ready for pickup at MotoFit!`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#25D366] text-white text-xs rounded hover:bg-[#20b858] transition"
+                    >
+                      <MessageCircle size={14} /> {isDueForService(client.rawLastVisit) ? 'Remind Due' : 'Reminder'}
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#050511] text-white p-8 font-sans relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#10b981]/10 rounded-full blur-[120px] pointer-events-none"></div>
@@ -187,64 +256,7 @@ export default function ClientsPage() {
             </button>
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20 text-gray-400 gap-2">
-              <Loader2 size={24} className="animate-spin text-[#10b981]" />
-              <span>Loading clients...</span>
-            </div>
-          ) : filteredClients.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="p-4 text-gray-400 font-medium">Name</th>
-                    <th className="p-4 text-gray-400 font-medium">Phone</th>
-                    <th className="p-4 text-gray-400 font-medium">Vehicle</th>
-                    <th className="p-4 text-gray-400 font-medium text-right">Last Visit</th>
-                    <th className="p-4 text-gray-400 font-medium text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredClients.map((client) => (
-                    <tr key={client.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                      <td className="p-4 font-medium text-white">{client.name}</td>
-                      <td className="p-4 text-gray-400">{client.phone}</td>
-                      <td className="p-4 text-gray-400">{client.vehicle}</td>
-                      <td className="p-4 text-right font-medium text-[#10b981]">{client.lastVisit}</td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button 
-                            onClick={() => handleGenerateStatement(client)}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs rounded hover:bg-blue-500/20 transition"
-                          >
-                            <FileText size={14} /> Statement
-                          </button>
-                          <a 
-                            href={`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
-                              isDueForService(client.rawLastVisit) 
-                                ? `Hi ${client.name}, it has been over 3 months since your ${client.vehicle} was serviced. Please book an appointment with MotoFit for a routine checkup to maintain optimal performance!` 
-                                : `Hi ${client.name}, your vehicle (${client.vehicle}) servicing is complete and ready for pickup at MotoFit!`
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#25D366] text-white text-xs rounded hover:bg-[#20b858] transition"
-                          >
-                            <MessageCircle size={14} /> {isDueForService(client.rawLastVisit) ? 'Remind Due' : 'Reminder'}
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-20 opacity-50">
-              <Users size={64} className="mx-auto mb-4 text-[#10b981]" />
-              <p className="text-xl">No clients found matching "{searchQuery}"</p>
-              <p className="text-sm mt-2">Try a different search term or add a new client.</p>
-            </div>
-          )}
+          {renderClientsContent()}
         </div>
       </div>
     </div>
