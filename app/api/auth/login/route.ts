@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Phone and PIN are required" }, { status: 400 });
     }
 
-    let cleanPhone = phone.replace(/[^0-9]/g, "");
+    let cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.startsWith("91") && cleanPhone.length > 10) {
       cleanPhone = cleanPhone.substring(2);
     }
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     // Issue a cryptographically signed JWT
     const sessionToken = jwt.sign(
       { id: user.id, name: user.name, role: user.role, phone: user.phone },
-      JWT_SECRET,
+      JWT_SECRET as string,
       { expiresIn: '7d' } // Expire in 7 days
     );
 

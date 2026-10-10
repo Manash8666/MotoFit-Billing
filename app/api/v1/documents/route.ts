@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateInvoiceTotals } from "@/lib/billing-calculations";
-import crypto from "crypto";
 
 import { headers } from "next/headers";
 import * as jose from 'jose';
@@ -12,7 +11,7 @@ export async function GET(req: Request) {
     const authHeader = headersList.get('authorization');
     let isSamael = false;
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is missing");
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
@@ -93,29 +92,25 @@ export async function POST(req: Request) {
           let vehicle = await tx.vehicle.findUnique({
             where: { regNumber: vehicleReg }
           });
-          if (!vehicle) {
-            vehicle = await tx.vehicle.create({
-              data: {
-                regNumber: vehicleReg,
-                makeModel: makeModel || "Unknown",
-                runningKm: runningKm || 0,
-                customerId: customer.id
-              }
-            });
-          }
+          vehicle ??= await tx.vehicle.create({
+            data: {
+              regNumber: vehicleReg,
+              makeModel: makeModel || "Unknown",
+              runningKm: runningKm || 0,
+              customerId: customer.id
+            }
+          });
 
           // Get a default user (temporary until auth is fully integrated)
           let defaultUser = await tx.user.findFirst({ where: { role: 'SUPER_ADMIN', deletedAt: null } });
-          if (!defaultUser) {
-            defaultUser = await tx.user.create({
-              data: {
-                name: "System Admin",
-                phone: "+910000000000",
-                pinHash: "0000",
-                role: "SUPER_ADMIN"
-              }
-            });
-          }
+          defaultUser ??= await tx.user.create({
+            data: {
+              name: "System Admin",
+              phone: "+910000000000",
+              pinHash: "0000",
+              role: "SUPER_ADMIN"
+            }
+          });
 
           const initialStatus = docType === "SOW_BILL" ? "DRAFT" : "ESTIMATE_CREATED";
 

@@ -17,7 +17,7 @@ export default function FinancialDashboardPage() {
         let exp = 0;
         data.forEach(t => {
           const raw = t.amount ? t.amount.toString().replace(/[^0-9.-]+/g, "") : "0";
-          const val = parseFloat(raw) || 0;
+          const val = Number.parseFloat(raw) || 0;
           if (t.type === 'CREDIT') rev += val;
           if (t.type === 'EXPENSE' || t.type === 'DEBIT') exp += val;
         });
