@@ -1,5 +1,6 @@
 "use client";
 import { apiClient } from '@/lib/api-client';
+import { downloadJsPDF } from '@/lib/download-utils';
 
 import React, { useState } from "react";
 import { MotoFitPrintableInvoice, PrintableDocProps } from "@/components/MotoFitPrintableInvoice";
@@ -253,59 +254,13 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
       const pdf = await generatePDF();
       if (!pdf) return;
 
-      // 1. Determine the meaningful filename
+      const prefix = docType === 'ESTIMATE' ? 'MotoFit-Estimate' : 'MotoFit-Bill';
       const docNum = (!formData.docNumber || formData.docNumber === 'AUTO')
-        ? `MotoFit-${formData.customerName?.replace(/\s+/g, '-') || 'Doc'}-${new Date().toISOString().slice(0, 10)}`
+        ? `${prefix}-${formData.customerName?.replace(/\s+/g, '-') || 'Doc'}-${new Date().toISOString().slice(0, 10)}`
         : formData.docNumber;
       
       const filename = `${docNum}.pdf`;
-
-      // 2. Generate the PDF blob with explicit MIME type
-      const pdfBlob = pdf.output('blob');
-      const blob = new Blob([pdfBlob], { type: 'application/pdf' });
-
-      // 3. Hybrid Mobile/Desktop Detection
-      const isMobile = typeof navigator !== 'undefined' && 
-        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-      if (isMobile && typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
-        const file = new File([blob], filename, { type: 'application/pdf' });
-        
-        if (navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              title: filename,
-              files: [file],
-            });
-            return; // Successfully presented mobile share/save sheet
-          } catch (err: any) {
-            // If the user cancelled/dismissed the share sheet, exit gracefully
-            if (err.name === 'AbortError') return;
-            
-            // If sharing threw an unexpected runtime error, fall through to blob download
-            console.warn("Mobile Web Share failed, falling back to direct download:", err);
-          }
-        }
-      }
-
-      // 4. Desktop (or unsupported mobile) path: Refined Blob Download
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      
-      link.href = url;
-      link.download = filename;
-      link.setAttribute('download', filename); // Double down for strict browser compliance
-      
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      // 5. Generous revocation delay (60 seconds) 
-      // to guarantee Chrome's background pipeline reads the metadata before cleanup
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 60000);
-
+      await downloadJsPDF(pdf, filename, { title: filename });
     } catch (error: any) {
       console.error("Failed to generate or download PDF:", error);
       alert("Failed to generate PDF: " + (error?.message || JSON.stringify(error)));

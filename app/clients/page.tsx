@@ -5,6 +5,7 @@ import { ArrowLeft, Users, Plus, Search, X, Loader2, MessageCircle, FileText, Be
 import Link from 'next/link';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { downloadJsPDF } from '@/lib/download-utils';
 
 interface Client {
   id: string | number;
@@ -52,7 +53,9 @@ export default function ClientsPage() {
       headStyles: { fillColor: [16, 185, 129] }
     });
 
-    doc.save(`Statement_${client.name.replace(/\s+/g, '_')}.pdf`);
+    await downloadJsPDF(doc, `Statement_${client.name.replace(/\s+/g, '_')}.pdf`, {
+      title: `MotoFit Statement - ${client.name}`
+    });
   };
 
   useEffect(() => {

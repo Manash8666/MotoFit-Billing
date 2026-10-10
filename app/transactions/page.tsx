@@ -5,6 +5,7 @@ import { Search, Plus, Home, Filter, MoreHorizontal, ArrowUpRight, ArrowDownRigh
 import Link from 'next/link';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { downloadJsPDF } from '@/lib/download-utils';
 
 interface Transaction {
   id: string;
@@ -66,7 +67,7 @@ export default function TransactionsPage() {
     }
   };
 
-  const handleExportAuditReport = () => {
+  const handleExportAuditReport = async () => {
     const doc = new jsPDF();
     
     // Header
@@ -94,7 +95,9 @@ export default function TransactionsPage() {
       styles: { fontSize: 10 },
     });
 
-    doc.save(`MotoFit_Audit_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    await downloadJsPDF(doc, `MotoFit_Audit_Report_${new Date().toISOString().split('T')[0]}.pdf`, {
+      title: 'MotoFit Financial Audit Ledger'
+    });
   };
 
   return (
