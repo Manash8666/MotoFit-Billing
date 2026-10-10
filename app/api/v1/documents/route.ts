@@ -7,6 +7,11 @@ import * as jose from 'jose';
 
 export async function GET(req: Request) {
   try {
+    const url = new URL(req.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '100');
+    const skip = (page - 1) * limit;
+
     const headersList = await headers();
     const authHeader = headersList.get('authorization');
     let isSamael = false;
@@ -25,20 +30,29 @@ export async function GET(req: Request) {
 
     const whereClause = isSamael ? {} : { isHidden: false };
 
-    const documents = await prisma.document.findMany({
-      take: 100, // Basic pagination cap to prevent memory crashes
-      where: whereClause,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        vehicle: {
-          include: {
-            customer: true
-          }
-        },
-        items: true
-      }
-    });
-    return NextResponse.json(documents);
+    const [documents, totalCount] = await Promise.all([
+      prisma.document.findMany({
+        skip,
+        take: limit,
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          vehicle: {
+            include: {
+              customer: true
+            }
+          },
+          items: true
+        }
+      }),
+      prisma.document.count({ where: whereClause })
+    ]);
+
+    const response = NextResponse.json(documents);
+    response.headers.set('X-Total-Count', totalCount.toString());
+    response.headers.set('X-Page', page.toString());
+    response.headers.set('X-Limit', limit.toString());
+    return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -74,10 +88,19 @@ export async function POST(req: Request) {
       try {
         result = await prisma.$transaction(async (tx) => {
           if (docNumber === "AUTO") {
-            const count = await tx.document.count({ where: { type: docType } });
+            const lastDoc = await tx.document.findFirst({
+              where: { type: docType },
+              orderBy: { createdAt: 'desc' }
+            });
+            let nextSeq = 1;
+            if (lastDoc && lastDoc.docNumber) {
+              const match = lastDoc.docNumber.match(/\d+$/);
+              if (match) {
+                nextSeq = parseInt(match[0], 10) + 1;
+              }
+            }
             const prefix = docType === "SOW_BILL" ? "MF2-PASS-" : "MF2-EST-";
-            // Format number to be at least 2 digits
-            const seq = (count + 1).toString().padStart(2, '0');
+            const seq = nextSeq.toString().padStart(2, '0');
             finalDocNumber = `${prefix}${seq}`;
           }
 

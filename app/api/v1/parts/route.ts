@@ -1,13 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const parts = await prisma.part.findMany({
-      take: 100, // Basic pagination cap
-      orderBy: { createdAt: "desc" }
-    });
-    return NextResponse.json(parts);
+    const url = new URL(req.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '100');
+    const skip = (page - 1) * limit;
+
+    const [parts, totalCount] = await Promise.all([
+      prisma.part.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.part.count()
+    ]);
+    const response = NextResponse.json(parts);
+    response.headers.set('X-Total-Count', totalCount.toString());
+    response.headers.set('X-Page', page.toString());
+    response.headers.set('X-Limit', limit.toString());
+    return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
