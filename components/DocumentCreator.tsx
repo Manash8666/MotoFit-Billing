@@ -252,33 +252,32 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
     try {
       const pdf = await generatePDF();
       if (pdf) {
-        const filename = `${formData.docNumber || 'MotoFit-Doc'}.pdf`;
+        // Build a meaningful filename — never use the raw "AUTO" placeholder
+        const docNum = (!formData.docNumber || formData.docNumber === 'AUTO')
+          ? `MotoFit-${formData.customerName?.replace(/\s+/g, '-') || 'Doc'}-${new Date().toISOString().slice(0, 10)}`
+          : formData.docNumber;
+        const filename = `${docNum}.pdf`;
+
+        // Android WebView / TWA: use the Web Share API so the user can save to Drive or local storage
         const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
-        
-        // In Android WebViews/TWAs, standard <a> tag downloads often fail silently.
-        // Web Share API is the most robust way to let the user save the file to Drive/Local Storage.
-        if (isAndroid && typeof navigator !== 'undefined' && navigator.share) {
+        if (isAndroid && navigator.share) {
           const blob = pdf.output('blob');
           const file = new File([blob], filename, { type: 'application/pdf' });
           if (navigator.canShare?.({ files: [file] })) {
-            await navigator.share({
-              title: filename,
-              files: [file]
-            });
+            await navigator.share({ title: filename, files: [file] });
             return;
           }
         }
-        // Fallback for Desktop or if Share API is unsupported
-        // We manually append to body to ensure modern Chrome/Edge respects the 'download' attribute
-        const blob = pdf.output('blob');
-        const url = URL.createObjectURL(blob);
+
+        // Desktop / Desktop WebView fallback:
+        // Use a data URI (not a blob URL) so the browser assigns OUR filename, not a UUID.
+        const dataUri = pdf.output('datauristring');
         const link = document.createElement('a');
-        link.href = url;
+        link.href = dataUri;
         link.download = filename;
         document.body.appendChild(link);
         link.click();
         link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
     } catch (error: any) {
       console.error(error);
