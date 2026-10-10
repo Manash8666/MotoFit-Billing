@@ -22,7 +22,6 @@ export default function ExpensesPage() {
 
   useEffect(() => {
     apiClient.fetch('/api/v1/transactions')
-      .then(res => res.json())
       .then((data: any[]) => {
         const mapped = data.filter(t => t.type === 'Expense').map(t => ({
           id: t.id,

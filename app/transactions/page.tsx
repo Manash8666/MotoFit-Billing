@@ -25,7 +25,6 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     apiClient.fetch('/api/v1/transactions')
-      .then(res => res.json())
       .then(data => {
         setTransactions(data);
         setIsLoading(false);

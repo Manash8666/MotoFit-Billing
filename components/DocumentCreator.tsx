@@ -120,14 +120,12 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
 
   React.useEffect(() => {
     apiClient.fetch('/api/v1/customers')
-      .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setCustomers(data);
       })
       .catch(console.error);
       
     apiClient.fetch('/api/v1/parts')
-      .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setParts(data);
       })
@@ -138,7 +136,6 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
     const duplicateId = params.get('duplicate');
     if (duplicateId) {
       apiClient.fetch(`/api/v1/documents/${duplicateId}`)
-        .then(res => res.json())
         .then(data => {
           if (data && !data.error) {
             setFormData(prev => ({

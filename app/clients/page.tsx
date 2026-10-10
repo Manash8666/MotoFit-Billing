@@ -57,7 +57,6 @@ export default function ClientsPage() {
 
   useEffect(() => {
     apiClient.fetch('/api/v1/customers')
-      .then(res => res.json())
       .then(data => {
         setClients(data);
         setIsLoading(false);

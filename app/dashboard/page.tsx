@@ -10,7 +10,6 @@ export default function FinancialDashboardPage() {
 
   useEffect(() => {
     apiClient.fetch('/api/v1/transactions')
-      .then(res => res.json())
       .then((data: any[]) => {
         if (!Array.isArray(data)) return;
         let rev = 0;

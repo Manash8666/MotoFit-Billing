@@ -13,7 +13,6 @@ export default function PartsPage() {
 
   useEffect(() => {
     apiClient.fetch('/api/v1/parts')
-      .then(res => res.json())
       .then(data => {
         setParts(data);
         setLoading(false);

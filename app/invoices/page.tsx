@@ -36,7 +36,6 @@ export default function InvoicesPage() {
 
   useEffect(() => {
     apiClient.fetch('/api/v1/documents')
-      .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setDocuments(data);
         setIsLoading(false);
