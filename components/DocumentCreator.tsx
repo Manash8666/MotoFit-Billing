@@ -268,9 +268,17 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
             return;
           }
         }
-        
         // Fallback for Desktop or if Share API is unsupported
-        pdf.save(filename);
+        // We manually append to body to ensure modern Chrome/Edge respects the 'download' attribute
+        const blob = pdf.output('blob');
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
     } catch (error: any) {
       console.error(error);
