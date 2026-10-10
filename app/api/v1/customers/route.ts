@@ -35,7 +35,8 @@ export async function GET(req: Request) {
     response.headers.set('X-Limit', limit.toString());
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[Customers API Error]:", error);
+    return NextResponse.json({ error: "An unexpected error occurred processing customers." }, { status: 500 });
   }
 }
 
@@ -57,6 +58,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(customer);
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[Customers API Error]:", error);
+    return NextResponse.json({ error: "An unexpected error occurred processing customers." }, { status: 500 });
   }
 }

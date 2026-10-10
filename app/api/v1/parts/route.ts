@@ -22,7 +22,8 @@ export async function GET(req: Request) {
     response.headers.set('X-Limit', limit.toString());
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[Parts API Error]:", error);
+    return NextResponse.json({ error: "An unexpected error occurred processing parts." }, { status: 500 });
   }
 }
 
@@ -34,17 +35,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const parsedPrice = Number.parseFloat(price?.toString().replace(/[^0-9.-]+/g, ""));
+    const parsedStock = Number.parseInt(stock);
+
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      return NextResponse.json({ error: "Price must be a valid positive number" }, { status: 400 });
+    }
+
+    if (isNaN(parsedStock) || parsedStock < 0) {
+      return NextResponse.json({ error: "Stock must be a valid positive number" }, { status: 400 });
+    }
+
     const part = await prisma.part.create({
       data: {
         name,
         category: category || "",
-        price: Number.parseFloat(price.toString().replace(/[^0-9.-]+/g, "")) || 0.00,
-        stock: Number.parseInt(stock) || 0
+        price: parsedPrice,
+        stock: parsedStock
       }
     });
 
     return NextResponse.json(part, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[Parts API Error]:", error);
+    return NextResponse.json({ error: "An unexpected error occurred processing parts." }, { status: 500 });
   }
 }

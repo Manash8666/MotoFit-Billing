@@ -40,23 +40,42 @@ export async function POST(req: Request) {
     const isBcryptHash = user.pinHash.startsWith("$2a$") || user.pinHash.startsWith("$2b$");
     
     let isPinValid = false;
+    let newHashToSave: string | null = null;
+
     if (isBcryptHash) {
       isPinValid = await bcrypt.compare(pin.trim(), user.pinHash);
     } else {
       isPinValid = user.pinHash === pin.trim();
       // Auto-migrate plaintext to bcrypt on successful login
       if (isPinValid) {
-        const hashed = await bcrypt.hash(pin.trim(), 10);
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { pinHash: hashed }
-        });
+        newHashToSave = await bcrypt.hash(pin.trim(), 10);
       }
     }
 
     if (!isPinValid) {
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: { failedAttempts: { increment: 1 } }
+      });
+      
+      if (updatedUser.failedAttempts >= 5) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { isActive: false }
+        });
+        return NextResponse.json({ error: "Account locked due to too many failed attempts. Contact Super Admin." }, { status: 403 });
+      }
       return NextResponse.json({ error: "Incorrect PIN. Please try again." }, { status: 401 });
     }
+
+    const updateData: any = { lastLogin: new Date() };
+    if (user.failedAttempts > 0) updateData.failedAttempts = 0;
+    if (newHashToSave) updateData.pinHash = newHashToSave;
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: updateData
+    });
 
     // Issue a cryptographically signed JWT
     const sessionToken = jwt.sign(

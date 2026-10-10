@@ -54,7 +54,8 @@ export async function GET(req: Request) {
     response.headers.set('X-Limit', limit.toString());
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[Documents POST Error]:", error);
+    return NextResponse.json({ error: "An unexpected error occurred while creating the document." }, { status: 500 });
   }
 }
 
@@ -112,11 +113,13 @@ export async function POST(req: Request) {
           });
 
           // Upsert Vehicle
-          let vehicle = await tx.vehicle.findUnique({
-            where: { regNumber: vehicleReg }
-          });
-          vehicle ??= await tx.vehicle.create({
-            data: {
+          let vehicle = await tx.vehicle.upsert({
+            where: { regNumber: vehicleReg },
+            update: {
+              makeModel: makeModel || undefined,
+              runningKm: runningKm || undefined
+            },
+            create: {
               regNumber: vehicleReg,
               makeModel: makeModel || "Unknown",
               runningKm: runningKm || 0,
