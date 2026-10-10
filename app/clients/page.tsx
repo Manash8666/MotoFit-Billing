@@ -82,7 +82,7 @@ export default function ClientsPage() {
     return matchesSearch;
   });
 
-  const handleAddClient = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddClient = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
       const res = await apiClient.fetch('/api/v1/customers', {

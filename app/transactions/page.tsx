@@ -42,7 +42,7 @@ export default function TransactionsPage() {
     t.account.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddTransaction = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddTransaction = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
       const res = await apiClient.fetch('/api/v1/transactions', {
@@ -91,13 +91,69 @@ export default function TransactionsPage() {
       body: tableRows,
       startY: 45,
       theme: 'striped',
-      headStyles: { fillColor: [16, 185, 129] }, // MotoFit Green
+      headStyles: { fillColor: [16, 185, 129] }, // Emerald Green
       styles: { fontSize: 10 },
     });
 
     await downloadJsPDF(doc, `MotoFit_Audit_Report_${new Date().toISOString().split('T')[0]}.pdf`, {
       title: 'MotoFit Financial Audit Ledger'
     });
+  };
+
+  const renderTableContent = () => {
+    if (isLoading) {
+      return (
+        <tr>
+          <td colSpan={8} className="text-center py-20 text-gray-400">
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 size={20} className="animate-spin text-blue-400" />
+              <span>Loading transactions...</span>
+            </div>
+          </td>
+        </tr>
+      );
+    }
+
+    if (filteredTransactions.length === 0) {
+      return (
+        <tr>
+          <td colSpan={8} className="text-center py-20 text-gray-400">
+            No transactions found.
+          </td>
+        </tr>
+      );
+    }
+
+    return filteredTransactions.map((trx, i) => (
+      <tr key={trx.id || i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+        <td className="p-4 text-sm font-medium text-blue-400 cursor-pointer hover:underline">{trx.id}</td>
+        <td className="p-4 text-sm flex items-center gap-2">
+          {trx.type === 'Income' ? (
+            <ArrowDownRight size={16} className="text-emerald-400" />
+          ) : (
+            <ArrowUpRight size={16} className="text-amber-400" />
+          )}
+          <span className={trx.type === 'Income' ? 'text-emerald-400' : 'text-amber-400'}>{trx.type}</span>
+        </td>
+        <td className="p-4 text-sm text-gray-400 hover:text-white cursor-pointer hover:underline">{trx.reference}</td>
+        <td className="p-4 text-sm text-gray-400">{trx.date}</td>
+        <td className="p-4 text-sm text-white">{trx.account}</td>
+        <td className="p-4 text-sm text-white font-medium">{trx.amount}</td>
+        <td className="p-4">
+          <span className={`text-xs px-2.5 py-1 rounded-md font-medium border ${
+            trx.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
+            'bg-amber-500/10 text-amber-400 border-amber-500/20'
+          }`}>
+            {trx.status}
+          </span>
+        </td>
+        <td className="p-4 text-right">
+          <button className="text-gray-500 hover:text-white transition-colors opacity-100 sm:opacity-0 group-hover:opacity-100">
+            <MoreHorizontal size={18} />
+          </button>
+        </td>
+      </tr>
+    ));
   };
 
   return (
@@ -198,52 +254,7 @@ export default function TransactionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-20 text-gray-400">
-                      <div className="flex items-center justify-center gap-2">
-                        <Loader2 size={20} className="animate-spin text-blue-400" />
-                        <span>Loading transactions...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : filteredTransactions.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-20 text-gray-400">
-                      No transactions found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredTransactions.map((trx, i) => (
-                    <tr key={trx.id || i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                    <td className="p-4 text-sm font-medium text-blue-400 cursor-pointer hover:underline">{trx.id}</td>
-                    <td className="p-4 text-sm flex items-center gap-2">
-                      {trx.type === 'Income' ? (
-                        <ArrowDownRight size={16} className="text-emerald-400" />
-                      ) : (
-                        <ArrowUpRight size={16} className="text-amber-400" />
-                      )}
-                      <span className={trx.type === 'Income' ? 'text-emerald-400' : 'text-amber-400'}>{trx.type}</span>
-                    </td>
-                    <td className="p-4 text-sm text-gray-400 hover:text-white cursor-pointer hover:underline">{trx.reference}</td>
-                    <td className="p-4 text-sm text-gray-400">{trx.date}</td>
-                    <td className="p-4 text-sm text-white">{trx.account}</td>
-                    <td className="p-4 text-sm text-white font-medium">{trx.amount}</td>
-                    <td className="p-4">
-                      <span className={`text-xs px-2.5 py-1 rounded-md font-medium border ${
-                        trx.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
-                        'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                      }`}>
-                        {trx.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <button className="text-gray-500 hover:text-white transition-colors opacity-100 sm:opacity-0 group-hover:opacity-100">
-                        <MoreHorizontal size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                )))}
+                {renderTableContent()}
               </tbody>
             </table>
           </div>
