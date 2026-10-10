@@ -82,7 +82,7 @@ export default function ClientsPage() {
     return matchesSearch;
   });
 
-  const handleAddClient = async (e: React.FormEvent) => {
+  const handleAddClient = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const res = await apiClient.fetch('/api/v1/customers', {
@@ -122,16 +122,16 @@ export default function ClientsPage() {
             </h2>
             <form onSubmit={handleAddClient} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Client Name</label>
-                <input required type="text" value={newClient.name} onChange={e => setNewClient({...newClient, name: e.target.value})} className="w-full bg-[#1a233a] border border-white/10 rounded-lg p-2.5 text-white" />
+                <label htmlFor="clientName" className="block text-sm text-gray-400 mb-1">Client Name</label>
+                <input id="clientName" required type="text" value={newClient.name} onChange={e => setNewClient({...newClient, name: e.target.value})} className="w-full bg-[#1a233a] border border-white/10 rounded-lg p-2.5 text-white" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Phone Number</label>
-                <input required type="text" value={newClient.phone} onChange={e => setNewClient({...newClient, phone: e.target.value})} className="w-full bg-[#1a233a] border border-white/10 rounded-lg p-2.5 text-white" />
+                <label htmlFor="clientPhone" className="block text-sm text-gray-400 mb-1">Phone Number</label>
+                <input id="clientPhone" required type="text" value={newClient.phone} onChange={e => setNewClient({...newClient, phone: e.target.value})} className="w-full bg-[#1a233a] border border-white/10 rounded-lg p-2.5 text-white" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Vehicle Details</label>
-                <input required type="text" value={newClient.vehicle} onChange={e => setNewClient({...newClient, vehicle: e.target.value})} className="w-full bg-[#1a233a] border border-white/10 rounded-lg p-2.5 text-white" />
+                <label htmlFor="clientVehicle" className="block text-sm text-gray-400 mb-1">Vehicle Details</label>
+                <input id="clientVehicle" required type="text" value={newClient.vehicle} onChange={e => setNewClient({...newClient, vehicle: e.target.value})} className="w-full bg-[#1a233a] border border-white/10 rounded-lg p-2.5 text-white" />
               </div>
               <div className="flex gap-3 mt-6">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 rounded-lg border border-white/10 text-white hover:bg-white/5 transition-colors">Cancel</button>
@@ -187,7 +187,12 @@ export default function ClientsPage() {
             </button>
           </div>
 
-          {filteredClients.length > 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20 text-gray-400 gap-2">
+              <Loader2 size={24} className="animate-spin text-[#10b981]" />
+              <span>Loading clients...</span>
+            </div>
+          ) : filteredClients.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -215,7 +220,7 @@ export default function ClientsPage() {
                             <FileText size={14} /> Statement
                           </button>
                           <a 
-                            href={`https://wa.me/${client.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                            href={`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
                               isDueForService(client.rawLastVisit) 
                                 ? `Hi ${client.name}, it has been over 3 months since your ${client.vehicle} was serviced. Please book an appointment with MotoFit for a routine checkup to maintain optimal performance!` 
                                 : `Hi ${client.name}, your vehicle (${client.vehicle}) servicing is complete and ready for pickup at MotoFit!`

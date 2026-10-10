@@ -42,7 +42,7 @@ export default function TransactionsPage() {
     t.account.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddTransaction = async (e: React.FormEvent) => {
+  const handleAddTransaction = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const res = await apiClient.fetch('/api/v1/transactions', {
@@ -153,23 +153,23 @@ export default function TransactionsPage() {
             <h2 className="text-xl font-medium mb-6 text-white">New Transaction</h2>
             <form onSubmit={handleAddTransaction} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Type</label>
-                <select value={newTransaction.type} onChange={e => setNewTransaction({...newTransaction, type: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white">
+                <label htmlFor="trxType" className="block text-sm text-gray-400 mb-1">Type</label>
+                <select id="trxType" value={newTransaction.type} onChange={e => setNewTransaction({...newTransaction, type: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white">
                   <option value="Income">Income</option>
                   <option value="Expense">Expense</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Reference (e.g. INV-123)</label>
-                <input required type="text" value={newTransaction.reference} onChange={e => setNewTransaction({...newTransaction, reference: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+                <label htmlFor="trxReference" className="block text-sm text-gray-400 mb-1">Reference (e.g. INV-123)</label>
+                <input id="trxReference" required type="text" value={newTransaction.reference} onChange={e => setNewTransaction({...newTransaction, reference: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Account</label>
-                <input required type="text" value={newTransaction.account} onChange={e => setNewTransaction({...newTransaction, account: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+                <label htmlFor="trxAccount" className="block text-sm text-gray-400 mb-1">Account</label>
+                <input id="trxAccount" required type="text" value={newTransaction.account} onChange={e => setNewTransaction({...newTransaction, account: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Amount (₹)</label>
-                <input required type="number" value={newTransaction.amount} onChange={e => setNewTransaction({...newTransaction, amount: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
+                <label htmlFor="trxAmount" className="block text-sm text-gray-400 mb-1">Amount (₹)</label>
+                <input id="trxAmount" required type="number" value={newTransaction.amount} onChange={e => setNewTransaction({...newTransaction, amount: e.target.value})} className="w-full bg-[#111111] border border-white/10 rounded-md p-2 text-sm text-white" />
               </div>
               <div className="flex gap-3 mt-6">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2 rounded-md border border-white/10 text-white text-sm hover:bg-white/5 transition-colors">Cancel</button>
@@ -198,8 +198,24 @@ export default function TransactionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions.map((trx, i) => (
-                  <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-20 text-gray-400">
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 size={20} className="animate-spin text-blue-400" />
+                        <span>Loading transactions...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredTransactions.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-20 text-gray-400">
+                      No transactions found.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTransactions.map((trx, i) => (
+                    <tr key={trx.id || i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                     <td className="p-4 text-sm font-medium text-blue-400 cursor-pointer hover:underline">{trx.id}</td>
                     <td className="p-4 text-sm flex items-center gap-2">
                       {trx.type === 'Income' ? (
@@ -227,7 +243,7 @@ export default function TransactionsPage() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                )))}
               </tbody>
             </table>
           </div>
