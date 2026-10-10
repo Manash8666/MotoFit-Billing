@@ -277,7 +277,7 @@ export default function DocumentCreator({ docType }: Readonly<DocumentCreatorPro
         link.download = filename;
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
+        link.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
     } catch (error: any) {
